@@ -35,7 +35,7 @@
 
   <!-- 手动添加弹层 -->
   <view class="mask" wx:if="{{showAdd}}" bindtap="closeAdd">
-    <view class="sheet" catchtap="">
+    <view class="sheet" catchtap="noop">
       <view class="h2 sheet-title">添加教材</view>
       <view class="f-row"><text class="f-label">书名</text><input placeholder="必填" value="{{form.title}}" data-k="title" bindinput="onFormInput" /></view>
       <view class="f-row"><text class="f-label">版次</text><input placeholder="如：第七版" value="{{form.edition}}" data-k="edition" bindinput="onFormInput" /></view>
@@ -67,7 +67,7 @@
 
   <!-- 批量导入弹层 -->
   <view class="mask" wx:if="{{showImport}}" bindtap="closeImport">
-    <view class="sheet" catchtap="">
+    <view class="sheet" catchtap="noop">
       <view class="h2 sheet-title">批量导入教材</view>
 
       <block wx:if="{{!pasteMode}}">
@@ -100,7 +100,11 @@
       </block>
 
       <view class="import-result" wx:if="{{importResult}}">
-        <text class="ok">成功导入 {{importResult.length}} 本</text>
+        <text class="ok">成功导入 {{importResult.added.length}} 本</text>
+        <text class="bad" wx:if="{{importResult.errors.length}}">；{{importResult.errors.length}} 条未通过校验</text>
+        <view class="error-list" wx:if="{{importResult.errors.length}}">
+          <view class="error-item" wx:for="{{importResult.errors}}" wx:key="index" wx:for-item="msg">{{msg}}</view>
+        </view>
       </view>
       <view class="text-weak import-classes">可用班级ID：CST2401 计算机2401班 · CST2402 计算机2402班 · SE2401 软工2401班 · EN2401 英语2401班 · BM2401 工商2401班</view>
     </view>

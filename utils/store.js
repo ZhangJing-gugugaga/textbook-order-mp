@@ -125,39 +125,89 @@ function importBooks(text) {
 }
 
 // Excel 导入（主入口）：rows 为二维数组，自动跳过含「书名」的表头行
+// 严格按模板校验（10 列：书名、ISBN、版次、作者、出版社、单价、课程名、选用教师、适用班级ID、必修；
+// 粘贴模式兼容 9 列无 ISBN 格式），返回 { added: [], errors: ['第N行：原因', ...] }
+// 注：模板列定义以 TEMPLATE_ROWS 为准，后续模板更新时同步调整此处校验
 function importBooksFromRows(rows) {
   const added = [];
+  const errors = [];
   const books = getBooks();
-  rows.forEach((cols) => {
+  const classIdsAll = getClasses().map((c) => c.id);
+  const isbnSet = {};
+  books.forEach((b) => { if (b.isbn) isbnSet[String(b.isbn).replace(/[-\s]/g, '')] = true; });
+  const existingIdsInBatch = {};
+
+  rows.forEach((cols, rowIdx) => {
+    const rowNo = rowIdx + 1; // 与 Excel 行号一致（第 1 行为表头）
     cols = (cols || []).map((s) => String(s === undefined || s === null ? '' : s).trim());
     // 跳过表头：首列含「书名」字样
     if (!cols[0] || cols[0].indexOf('书名') >= 0) return;
-    // 识别 ISBN 列：列数 ≥10（按含 ISBN 的模板对齐，即使该列为空）或第 2 列形如 ISBN
-    const hasIsbn = cols.length >= 10 || /^\d{9,13}[-\d]*$/.test(cols[1] || '');
+    if (cols.every((c) => !c)) return; // 整行为空直接忽略
+
+    // 列数校验：10 列（含 ISBN，Excel 模板标准）或 9 列（粘贴模式无 ISBN）
+    if (cols.length !== 10 && cols.length !== 9) {
+      errors.push('第' + rowNo + '行：列数为 ' + cols.length + '，应为 10 列（模板）或 9 列（无ISBN）');
+      return;
+    }
+    const hasIsbn = cols.length === 10;
     const isbn = hasIsbn ? cols[1] : '';
     const c = hasIsbn ? [cols[0]].concat(cols.slice(2)) : cols;
-    if (c.length < 7) return;
-    const price = parseFloat(c[4]);
-    if (isNaN(price)) return;
-    const classIds = (c[7] || '').split(/[,，]/).map((s) => s.trim()).filter(Boolean);
+    // c = [书名, 版次, 作者, 出版社, 单价, 课程名, 选用教师, 适用班级ID, 必修]
+    const [title, edition, author, press, priceStr, course, teacher, classStr, requiredStr] = c;
+
+    if (!title) { errors.push('第' + rowNo + '行：书名不能为空'); return; }
+    let isbnPlain = '';
+    if (hasIsbn && isbn) {
+      // ISBN 允许为空，填写时须为 9-13 位数字（可含连字符/空格）
+      isbnPlain = isbn.replace(/[-\s]/g, '');
+      if (!/^\d{9,13}$/.test(isbnPlain)) {
+        errors.push('第' + rowNo + '行：ISBN「' + isbn + '」格式不正确，应为 9-13 位数字');
+        return;
+      }
+      if (isbnSet[isbnPlain] || existingIdsInBatch[isbnPlain]) {
+        errors.push('第' + rowNo + '行：ISBN「' + isbnPlain + '」已存在，请勿重复导入');
+        return;
+      }
+      existingIdsInBatch[isbnPlain] = true;
+    }
+    const price = parseFloat(priceStr);
+    if (priceStr === '' || isNaN(price) || price < 0) {
+      errors.push('第' + rowNo + '行：单价「' + (priceStr || '空') + '」不是有效金额');
+      return;
+    }
+    if (requiredStr !== '是' && requiredStr !== '否') {
+      errors.push('第' + rowNo + '行：必修「' + (requiredStr || '空') + '」应为「是」或「否」');
+      return;
+    }
+    const classIds = classStr.split(/[,，]/).map((s) => s.trim()).filter(Boolean);
+    if (classIds.length === 0) {
+      errors.push('第' + rowNo + '行：适用班级ID不能为空（多个用英文逗号分隔，如 CST2401,CST2402）');
+      return;
+    }
+    const badClass = classIds.filter((cid) => classIdsAll.indexOf(cid) < 0);
+    if (badClass.length) {
+      errors.push('第' + rowNo + '行：班级ID不存在「' + badClass.join('、') + '」，可用：' + classIdsAll.join('/'));
+      return;
+    }
+
     const b = {
       id: 'B' + String(Date.now()) + String(added.length),
-      isbn: isbn,
-      title: c[0],
-      edition: c[1],
-      author: c[2],
-      press: c[3],
+      isbn: isbnPlain || '',
+      title: title,
+      edition: edition,
+      author: author,
+      press: press,
       price: price,
-      course: c[5],
-      teacher: c[6],
+      course: course,
+      teacher: teacher,
       classIds: classIds,
-      required: (c[8] || '是') !== '否'
+      required: requiredStr === '是'
     };
     books.unshift(b);
     added.push(b);
   });
   set(KEY.BOOKS, books);
-  return added;
+  return { added: added, errors: errors };
 }
 
 // ============ 学生批量导入（一键建链） ============
@@ -187,6 +237,27 @@ function findOrCreateClass(majorId, grade, name) {
   const list = getClasses();
   let hit = list.find((x) => x.majorId === majorId && x.grade === grade && x.name === name);
   if (hit) return hit.id;
+  // 兜底：兼容旧格式/字段缺失的存量班级数据（如 name 含「2024级」前缀、grade 为空），
+  // 按组合班级全称（专业名+年级+班号）二次匹配，避免导入时重复建班
+  const major = getMajors().find((m) => m.id === majorId);
+  if (major) {
+    const expected = major.name + grade + '级' + name;
+    hit = list.find((x) => {
+      if (x.majorId !== majorId) return false;
+      const g = x.grade || (String(x.name || '').match(/^(\d{4})级/) || [])[1] || '';
+      const n = x.grade ? (x.name || '') : String(x.name || '').replace(/^\d{4}级/, '');
+      return major.name + g + '级' + n === expected;
+    });
+    if (hit) {
+      // 顺手迁移旧格式为标准格式，下次可走精确匹配
+      if (!hit.grade || hit.name !== name) {
+        hit.grade = grade;
+        hit.name = name;
+        set(KEY.CLASSES, list);
+      }
+      return hit.id;
+    }
+  }
   const id = 'K' + Date.now() + list.length;
   list.push({ id, majorId, grade, name });
   set(KEY.CLASSES, list);
@@ -213,19 +284,37 @@ function importStudents(text) {
 }
 
 // Excel 导入（主入口）：rows 为二维数组，自动跳过含「学号」的表头行
+// 严格按模板校验（5 列：学号、姓名、学院名称、专业名称、班级全称），
+// 返回 { added: [], skipped: ['第N行：原因', ...] }
 function importStudentsFromRows(rows) {
   const ok = [];
   const skipped = [];
   const existingIds = {};
   getUsers().forEach((u) => { existingIds[u.id] = true; });
-  rows.forEach((cols) => {
+  rows.forEach((cols, rowIdx) => {
+    const rowNo = rowIdx + 1; // 与 Excel 行号一致（第 1 行为表头）
     cols = (cols || []).map((s) => String(s === undefined || s === null ? '' : s).trim());
     // 跳过表头：首列含「学号」字样
     if (!cols[0] || cols[0].indexOf('学号') >= 0) return;
+    if (cols.every((c) => !c)) return; // 整行为空直接忽略
+
+    if (cols.length !== 5) {
+      skipped.push('第' + rowNo + '行：列数为 ' + cols.length + '，模板应为 5 列（学号|姓名|学院名称|专业名称|班级全称）');
+      return;
+    }
     const [id, name, collegeName, majorName, className] = cols;
-    if (!id || !name || !collegeName || !majorName || !className) { skipped.push(cols.join(' ')); return; }
+    if (!id) { skipped.push('第' + rowNo + '行：学号不能为空'); return; }
+    if (!/^[A-Za-z0-9]{4,20}$/.test(id)) { skipped.push('第' + rowNo + '行：学号「' + id + '」格式不正确（4-20 位字母或数字）'); return; }
+    if (!name) { skipped.push('第' + rowNo + '行(' + id + ')：姓名不能为空'); return; }
+    if (!collegeName) { skipped.push('第' + rowNo + '行(' + id + ')：学院名称不能为空'); return; }
+    if (!majorName) { skipped.push('第' + rowNo + '行(' + id + ')：专业名称不能为空'); return; }
+    if (!className) { skipped.push('第' + rowNo + '行(' + id + ')：班级全称不能为空（如 2024级1班）'); return; }
+    if (!/^\d{4}级.+\S$/.test(className)) {
+      skipped.push('第' + rowNo + '行(' + id + ')：班级全称「' + className + '」格式不正确，应为「年级+班号」如 2024级1班');
+      return;
+    }
     // 先查重再建链，避免跳过行留下垃圾组织数据
-    if (existingIds[id]) { skipped.push(id + ' ' + name + '（学号已存在）'); return; }
+    if (existingIds[id]) { skipped.push('第' + rowNo + '行：学号 ' + id + ' ' + name + '（学号已存在）'); return; }
     existingIds[id] = true;
     // 班级全称解析：2024级1班 → 年级 2024 + 班号 1班
     const m = className.match(/^(\d{4})级(.+)$/);
@@ -237,7 +326,7 @@ function importStudentsFromRows(rows) {
     if (addStudent(id, name, classId)) {
       ok.push({ id, name });
     } else {
-      skipped.push(id + ' ' + name + '（学号已存在）');
+      skipped.push('第' + rowNo + '行：学号 ' + id + ' ' + name + '（学号已存在）');
     }
   });
   return { added: ok, skipped };
@@ -316,14 +405,15 @@ function getStats(orderId) {
   const majors = getMajors();
   const colleges = getColleges();
 
-  // 班级维度
+  // 班级维度（name 用组合班级全称，如「计算机科学与技术级2024级1班」，避免只显示「1班」）
   const byClass = order.scopeClassIds.map((cid) => {
     const cls = classes.find((c) => c.id === cid);
     const stu = users.filter((u) => u.classId === cid);
     const done = stu.filter((u) => subs[u.id]);
+    const full = cls ? getClassFull(cid) : null;
     return {
       id: cid,
-      name: cls ? cls.name : cid,
+      name: full ? full.className : cid,
       total: stu.length,
       submitted: done.length,
       rate: stu.length ? Math.round((done.length / stu.length) * 100) : 0
@@ -332,11 +422,13 @@ function getStats(orderId) {
 
   // 专业 / 学院维度：基于班级聚合
   function aggregate(levelKey) {
+    // collegeId → collegeName / majorId → majorName（动态拼接字段名在 getClassFull 中不存在，改为显式映射）
+    const nameField = levelKey === 'collegeId' ? 'collegeName' : 'majorName';
     const map = {};
     byClass.forEach((c) => {
       const info = getClassFull(c.id);
-      const key = info[levelKey];
-      if (!map[key]) map[key] = { id: key, name: info[levelKey + 'Name'], total: 0, submitted: 0 };
+      const key = info[levelKey] || '未知';
+      if (!map[key]) map[key] = { id: key, name: info[nameField] || '未知', total: 0, submitted: 0 };
       map[key].total += c.total;
       map[key].submitted += c.submitted;
     });

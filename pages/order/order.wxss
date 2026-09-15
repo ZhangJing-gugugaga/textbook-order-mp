@@ -112,3 +112,13 @@
 }
 .footer-btn { width: 300rpx; margin: 0; }
 .footer-space { height: 40rpx; }
+
+/* ===== 截止任务只读态 ===== */
+.closed-hint { font-size: 24rpx; color: #94A3B8; font-weight: 400; }
+.book-item.readonly { opacity: 0.75; }
+.book-item.readonly .check-box { border-color: #CBD5E1; }
+.footer-btn-disabled {
+  background: #CBD5E1 !important;
+  color: #FFFFFF;
+  box-shadow: none;
+}

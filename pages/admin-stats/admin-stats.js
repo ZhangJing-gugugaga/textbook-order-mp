@@ -1,5 +1,6 @@
 const store = require('../../utils/store');
 const csvUtil = require('../../utils/export');
+const xlsx = require('../../utils/xlsx-lite.js');
 
 const COLORS = ['#4F46E5', '#16A34A', '#F59E0B', '#8B5CF6', '#EC4899', '#14B8A6'];
 
@@ -28,7 +29,11 @@ Page({
 
   loadOrders() {
     const orders = store.getOrders();
-    const names = orders.map((o) => o.title + (o.status === 'open' ? '（进行中）' : '（已截止）'));
+    // 任务标题已含状态字样时不再重复拼接（如「xx（已截止）」+「（已截止）」）
+    const names = orders.map((o) => {
+      const suffix = o.status === 'open' ? '（进行中）' : '（已截止）';
+      return o.title.indexOf(suffix) >= 0 ? o.title : o.title + suffix;
+    });
     let idx = this.data.orderIndex;
     if (idx >= orders.length) idx = 0;
     this.setData({ orders, orderNames: names, orderIndex: idx });
@@ -64,7 +69,8 @@ Page({
     const overallRate = stats.total ? Math.round((stats.submitted / stats.total) * 100) : 0;
     const missing = store.getMissingStudents(order.id).map((u) => {
       const info = store.getClassFull(u.classId);
-      return { id: u.id, name: u.name, className: info ? info.majorName + info.className : u.classId };
+      // className 已含专业与年级，不再重复拼接 majorName
+      return { id: u.id, name: u.name, className: info ? info.className : u.classId };
     });
     this.setData({ stats, overallRate, missing });
     // canvas 2d 节点挂载晚于首次 setData，延迟绘制并带一次重试
@@ -152,5 +158,51 @@ Page({
     const subMap = store.getSubmissions()[this.currentOrderId] || {};
     const text = csvUtil.buildOrderCsv(order, stats, subMap);
     csvUtil.copyToClipboard(text);
+  },
+
+  // 导出 Excel 文件（.xlsx，两个工作表：征订明细 + 统计汇总）
+  // 真机优先调起微信转发（可直接发给文件传输助手/同事），失败回退到文档预览
+  onExportExcel() {
+    const order = store.getOrder(this.currentOrderId);
+    const stats = this.data.stats;
+    if (!order || !stats) return;
+    const subMap = store.getSubmissions()[this.currentOrderId] || {};
+    let buf;
+    try {
+      const sheets = csvUtil.buildOrderWorkbookSheets(order, stats, subMap);
+      buf = xlsx.makeWorkbookSheets(sheets);
+    } catch (e) {
+      wx.showToast({ title: '生成失败：' + e.message, icon: 'none' });
+      return;
+    }
+    const safeTitle = order.title.replace(/[\\/:*?"<>|]/g, '-');
+    const path = wx.env.USER_DATA_PATH + '/' + safeTitle + '.xlsx';
+    try {
+      wx.getFileSystemManager().writeFileSync(path, buf, 'binary');
+    } catch (e) {
+      wx.showToast({ title: '文件写入失败：' + e.message, icon: 'none', duration: 3000 });
+      return;
+    }
+    wx.showLoading({ title: '已生成，准备发送…' });
+    wx.shareFileMessage({
+      filePath: path,
+      fileName: safeTitle + '.xlsx',
+      success() {
+        wx.hideLoading();
+        wx.showToast({ title: '已发出，可在聊天中打开', icon: 'none', duration: 2500 });
+      },
+      fail() {
+        wx.hideLoading();
+        // 模拟器/不支持转发场景：回退为文档预览（预览页右上角菜单也可转发）
+        wx.openDocument({
+          filePath: path,
+          fileType: 'xlsx',
+          showMenu: true,
+          fail() {
+            wx.showToast({ title: '已生成：' + path, icon: 'none', duration: 3000 });
+          }
+        });
+      }
+    });
   }
 });

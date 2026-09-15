@@ -28,7 +28,7 @@
 
   <!-- 手动添加弹层 -->
   <view class="mask" wx:if="{{showAdd}}" bindtap="closeAdd">
-    <view class="sheet" catchtap="">
+    <view class="sheet" catchtap="noop">
       <view class="h2 sheet-title">添加学生</view>
       <view class="f-row"><text class="f-label">学号</text><input placeholder="必填且唯一" value="{{form.id}}" data-k="id" bindinput="onFormInput" /></view>
       <view class="f-row"><text class="f-label">姓名</text><input placeholder="必填" value="{{form.name}}" data-k="name" bindinput="onFormInput" /></view>
@@ -51,7 +51,7 @@
 
   <!-- 批量导入弹层 -->
   <view class="mask" wx:if="{{showImport}}" bindtap="closeImport">
-    <view class="sheet" catchtap="">
+    <view class="sheet" catchtap="noop">
       <view class="h2 sheet-title">批量导入学生</view>
 
       <block wx:if="{{!pasteMode}}">
@@ -83,7 +83,10 @@
 
       <view class="import-result" wx:if="{{importResult}}">
         <text class="ok">成功导入 {{importResult.added.length}} 人</text>
-        <text class="bad" wx:if="{{importResult.skipped.length}}">；跳过 {{importResult.skipped.length}} 条</text>
+        <text class="bad" wx:if="{{importResult.skipped.length}}">；{{importResult.skipped.length}} 条未通过校验</text>
+        <view class="error-list" wx:if="{{importResult.skipped.length}}">
+          <view class="error-item" wx:for="{{importResult.skipped}}" wx:key="index" wx:for-item="msg">{{msg}}</view>
+        </view>
       </view>
     </view>
   </view>

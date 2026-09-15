@@ -29,7 +29,7 @@ function buildOrderCsv(order, stats, subMap) {
     (sub.items || []).forEach((it) => {
       const b = books[it.bookId] || {};
       detail.push([
-        cls ? cls.collegeName + cls.majorName + cls.className : u.classId,
+        cls ? cls.collegeName + ' / ' + cls.className : u.classId,
         u.id,
         u.name,
         b.title || it.bookId,
@@ -70,4 +70,49 @@ function copyToClipboard(text) {
   });
 }
 
-module.exports = { buildOrderCsv, copyToClipboard, rowsToCsv };
+// ============ Excel 导出：构建多 sheet 工作簿（真机可直接转发/打开） ============
+// 返回 [{ name: '工作表名', rows: [[...]] }, ...]，配合 xlsx.makeWorkbookSheets 生成 .xlsx
+function buildOrderWorkbookSheets(order, stats, subMap) {
+  const store = require('./store');
+  const books = {};
+  store.getBooks().forEach((b) => { books[b.id] = b; });
+
+  // Sheet1：征订明细
+  const detail = [['班级', '学号', '姓名', '教材', '版次', '单价', '数量', '提交时间']];
+  Object.keys(subMap).forEach((uid) => {
+    const u = store.getUsers().find((x) => x.id === uid);
+    if (!u) return;
+    const cls = store.getClassFull(u.classId);
+    const sub = subMap[uid];
+    (sub.items || []).forEach((it) => {
+      const b = books[it.bookId] || {};
+      detail.push([
+        cls ? cls.collegeName + ' / ' + cls.className : u.classId,
+        u.id,
+        u.name,
+        b.title || it.bookId,
+        b.edition || '',
+        b.price || 0,
+        it.qty,
+        sub.submittedAt
+      ]);
+    });
+  });
+
+  // Sheet2：统计汇总（学院/专业/班级 + 教材汇总）
+  const summary = [['维度', '名称', '应订人数', '已订人数', '比例']];
+  stats.byCollege.forEach((c) => summary.push(['学院', c.name, c.total, c.submitted, c.rate + '%']));
+  stats.byMajor.forEach((c) => summary.push(['专业', c.name, c.total, c.submitted, c.rate + '%']));
+  stats.byClass.forEach((c) => summary.push(['班级', c.name, c.total, c.submitted, c.rate + '%']));
+  summary.push([]);
+  summary.push(['教材汇总']);
+  summary.push(['书名', '单价', '征订数量', '金额']);
+  stats.byBook.forEach((b) => summary.push([b.title, b.price, b.count, b.amount]));
+
+  return [
+    { name: '征订明细', rows: detail },
+    { name: '统计汇总', rows: summary }
+  ];
+}
+
+module.exports = { buildOrderCsv, buildOrderWorkbookSheets, copyToClipboard, rowsToCsv };

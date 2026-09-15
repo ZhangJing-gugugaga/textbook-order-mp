@@ -68,6 +68,9 @@ Page({
     this.loadBooks();
   },
 
+  // ---------- 空处理器：阻止弹层内容点击冒泡关闭（catchtap="noop"） ----------
+  noop() {},
+
   // ---------- 手动添加 ----------
   openAdd() { this.setData({ showAdd: true }); },
   closeAdd() { this.setData({ showAdd: false }); },
@@ -130,13 +133,13 @@ Page({
           const fs = wx.getFileSystemManager();
           const buf = fs.readFileSync(file.path);
           const wb = xlsx.readWorkbook(buf);
-          const added = store.importBooksFromRows(wb.rows);
-          this.setData({ parsing: false, importResult: added });
+          const result = store.importBooksFromRows(wb.rows);
+          this.setData({ parsing: false, importResult: result });
           this.loadBooks();
-          if (added.length > 0) {
-            wx.showToast({ title: '成功导入 ' + added.length + ' 本', icon: 'success' });
+          if (result.added.length > 0) {
+            wx.showToast({ title: '成功导入 ' + result.added.length + ' 本', icon: 'success' });
           } else {
-            wx.showToast({ title: '未解析到有效数据', icon: 'none', duration: 2500 });
+            wx.showToast({ title: '未导入有效数据，请查看校验结果', icon: 'none', duration: 2500 });
           }
         } catch (e) {
           this.setData({ parsing: false });
@@ -170,14 +173,17 @@ Page({
   doImport() {
     const text = this.data.importText.trim();
     if (!text) { wx.showToast({ title: '请先粘贴或填入示例', icon: 'none' }); return; }
-    const added = store.importBooks(text);
-    if (added.length === 0) {
+    const result = store.importBooks(text);
+    if (result.added.length === 0 && result.errors.length === 0) {
       wx.showToast({ title: '未解析到有效数据，请检查格式', icon: 'none', duration: 2500 });
       return;
     }
-    this.setData({ showImport: false, importText: '' });
+    // 保留弹层展示结果（成功条数 + 校验失败原因），与文件导入行为一致
+    this.setData({ importResult: result, importText: '' });
     this.loadBooks();
-    wx.showToast({ title: '成功导入 ' + added.length + ' 本', icon: 'success' });
+    if (result.added.length > 0) {
+      wx.showToast({ title: '成功导入 ' + result.added.length + ' 本', icon: 'success' });
+    }
   },
 
   onDelete(e) {

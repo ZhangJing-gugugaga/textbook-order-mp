@@ -263,4 +263,87 @@ function makeWorkbook(rows, sheetName) {
   return zip.buffer.slice(zip.byteOffset, zip.byteOffset + zip.byteLength);
 }
 
-module.exports = { readWorkbook, makeWorkbook };
+// 生成多 sheet xlsx → ArrayBuffer
+// sheets: [{ name: '工作表名', rows: [[...], ...] }, ...]
+function makeWorkbookSheets(sheets) {
+  const list = (sheets || []).filter((s) => s && s.rows && s.rows.length);
+  if (list.length === 0) throw new Error('没有可写入的数据');
+  const esc = xmlEsc;
+  const te = new TextEncoder();
+  const zipEntries = [];
+  const sheetOverrides = [];
+  const sheetTags = [];
+  const sheetRels = [];
+
+  list.forEach((s, si) => {
+    const sheetFile = 'xl/worksheets/sheet' + (si + 1) + '.xml';
+    let sheetXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>';
+    sheetXml += '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>';
+    s.rows.forEach((row, ri) => {
+      sheetXml += '<row r="' + (ri + 1) + '">';
+      row.forEach((cell, ci) => {
+        // 列引用支持超过 Z 的列（AA、AB…）
+        let col = ci;
+        let ref = '';
+        do {
+          ref = String.fromCharCode(65 + (col % 26)) + ref;
+          col = Math.floor(col / 26) - 1;
+        } while (col >= 0);
+        ref += ri + 1;
+        const num = cell !== '' && cell !== null && cell !== undefined && !isNaN(Number(cell)) && typeof cell !== 'boolean';
+        if (cell === '' || cell === null || cell === undefined) {
+          // 跳过空单元格
+        } else if (num) {
+          sheetXml += '<c r="' + ref + '"><v>' + Number(cell) + '</v></c>';
+        } else {
+          sheetXml += '<c r="' + ref + '" t="inlineStr"><is><t>' + esc(cell) + '</t></is></c>';
+        }
+      });
+      sheetXml += '</row>';
+    });
+    sheetXml += '</sheetData></worksheet>';
+
+    sheetOverrides.push('<Override PartName="/' + sheetFile + '" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>');
+    // sheet 名做 XML 转义，且 Excel 工作表名不允许 : \ / ? * [ ]，保险替换
+    const safeName = String(s.name || 'Sheet' + (si + 1)).replace(/[:\\/?*[\]]/g, '-');
+    sheetTags.push('<sheet name="' + esc(safeName) + '" sheetId="' + (si + 1) + '" r:id="rId' + (si + 1) + '"/>');
+    sheetRels.push('<Relationship Id="rId' + (si + 1) + '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet' + (si + 1) + '.xml"/>');
+    zipEntries.push({ name: sheetFile, data: te.encode(sheetXml) });
+  });
+
+  const workbookXml =
+    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+    '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" ' +
+    'xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">' +
+    '<sheets>' + sheetTags.join('') + '</sheets></workbook>';
+  const wbRels =
+    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+    '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
+    sheetRels.join('') +
+    '</Relationships>';
+  const rootRels =
+    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+    '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
+    '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>' +
+    '</Relationships>';
+  const contentTypes =
+    '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>' +
+    '<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">' +
+    '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>' +
+    '<Default Extension="xml" ContentType="application/xml"/>' +
+    '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>' +
+    sheetOverrides.join('') +
+    '</Types>';
+
+  const entries = [
+    { name: '[Content_Types].xml', data: te.encode(contentTypes) },
+    { name: '_rels/.rels', data: te.encode(rootRels) },
+    { name: 'xl/workbook.xml', data: te.encode(workbookXml) },
+    { name: 'xl/_rels/workbook.xml.rels', data: te.encode(wbRels) }
+  ].concat(zipEntries);
+
+  const zip = buildZip(entries);
+  return zip.buffer.slice(zip.byteOffset, zip.byteOffset + zip.byteLength);
+}
+
+module.exports = { readWorkbook, makeWorkbook, makeWorkbookSheets };

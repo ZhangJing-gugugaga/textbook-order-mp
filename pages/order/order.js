@@ -62,7 +62,17 @@ Page({
     this.calcTotals();
   },
 
+  // 截止任务整体只读：任何交互只提示，不修改数据
+  checkClosed() {
+    if (this.data.order && this.data.order.status !== 'open') {
+      wx.showToast({ title: '该任务已截止，仅供查看', icon: 'none' });
+      return true;
+    }
+    return false;
+  },
+
   toggleCheck(e) {
+    if (this.checkClosed()) return;
     const id = e.currentTarget.dataset.id;
     const b = this.findBook(id);
     if (!b) return;
@@ -81,11 +91,13 @@ Page({
   },
 
   stepUp(e) {
+    if (this.checkClosed()) return;
     const b = this.findBook(e.currentTarget.dataset.id);
     if (b && b.qty < 9) this.updateBook(b.id, { qty: b.qty + 1 });
   },
 
   stepDown(e) {
+    if (this.checkClosed()) return;
     const b = this.findBook(e.currentTarget.dataset.id);
     if (!b) return;
     if (b.qty <= 1) {
@@ -108,14 +120,10 @@ Page({
   },
 
   onSubmit() {
+    if (this.checkClosed()) return;
     const picked = this.data.books.filter((b) => b.checked && b.qty > 0);
     if (picked.length === 0) {
       wx.showToast({ title: '请至少勾选一本教材', icon: 'none' });
-      return;
-    }
-    const order = this.data.order;
-    if (order.status !== 'open') {
-      wx.showToast({ title: '该任务已截止，无法提交', icon: 'none' });
       return;
     }
     // 一人一本原则：多本时不阻断，但明确提醒确认

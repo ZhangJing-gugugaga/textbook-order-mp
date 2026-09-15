@@ -101,8 +101,9 @@
 
     <!-- 导出 -->
     <view class="export-wrap">
-      <button class="btn-primary" bindtap="onExport">导出征订数据表格（CSV）</button>
-      <view class="text-weak export-tip">复制到剪贴板后，在电脑 Excel 中直接粘贴即可</view>
+      <button class="btn-primary" bindtap="onExportExcel">导出 Excel 表格（.xlsx）</button>
+      <view class="text-weak export-tip">生成后可直接转发到微信，电脑/手机 Excel 均可打开</view>
+      <button class="btn-ghost export-ghost" bindtap="onExport">复制 CSV 到剪贴板（电脑粘贴用）</button>
     </view>
   </block>
 

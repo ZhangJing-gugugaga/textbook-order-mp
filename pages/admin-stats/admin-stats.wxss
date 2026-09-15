@@ -50,3 +50,4 @@
 /* 导出 */
 .export-wrap { margin: 40rpx 24rpx 0; }
 .export-tip { text-align: center; margin-top: 16rpx; }
+.export-ghost { margin-top: 20rpx; }

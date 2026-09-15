@@ -70,6 +70,9 @@ Page({
     this.loadStudents();
   },
 
+  // ---------- 空处理器：阻止弹层内容点击冒泡关闭（catchtap="noop"） ----------
+  noop() {},
+
   // ---------- 手动添加 ----------
   openAdd() { this.setData({ showAdd: true, importResult: null }); },
   closeAdd() { this.setData({ showAdd: false }); },
@@ -125,7 +128,7 @@ Page({
           if (result.added.length > 0) {
             wx.showToast({ title: '导入 ' + result.added.length + ' 人', icon: 'success' });
           } else {
-            wx.showToast({ title: '未解析到有效数据', icon: 'none', duration: 2500 });
+            wx.showToast({ title: '未导入有效数据，请查看校验结果', icon: 'none', duration: 2500 });
           }
         } catch (e) {
           this.setData({ parsing: false });
