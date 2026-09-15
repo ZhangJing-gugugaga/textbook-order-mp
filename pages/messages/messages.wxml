@@ -1,0 +1,19 @@
+<view class="page">
+  <view class="notice card">
+    <view class="notice-icon">🔔</view>
+    <view class="notice-text">
+      <view class="h2">消息提醒</view>
+      <view class="text-weak">微信订阅消息推送能力待定，当前为站内信演示。正式版将覆盖：征订开始 / 临近截止 / 漏订催办 / 到书领取 四类节点。</view>
+    </view>
+  </view>
+
+  <view class="section-title">通知列表</view>
+  <view class="card msg-card" wx:for="{{messages}}" wx:key="id" wx:for-item="m">
+    <view class="msg-head">
+      <view class="msg-icon">{{m.type === 'open' ? '📢' : (m.type === 'deadline' ? '⏰' : '📦')}}</view>
+      <view class="msg-title">{{m.title}}</view>
+      <view class="msg-time text-weak">{{m.time}}</view>
+    </view>
+    <view class="msg-content text-sub">{{m.content}}</view>
+  </view>
+</view>

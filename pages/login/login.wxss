@@ -1,0 +1,93 @@
+.login-page {
+  min-height: 100vh;
+  background: linear-gradient(160deg, #4F46E5 0%, #6366F1 45%, #818CF8 100%);
+  padding-bottom: 80rpx;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 背景装饰圆 */
+.deco {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+}
+.deco-1 { width: 400rpx; height: 400rpx; left: -140rpx; top: -120rpx; }
+.deco-2 { width: 260rpx; height: 260rpx; right: -90rpx; top: 180rpx; }
+.deco-3 { width: 160rpx; height: 160rpx; left: 80rpx; top: 420rpx; background: rgba(255, 255, 255, 0.06); }
+
+/* 品牌区 */
+.hero {
+  text-align: center;
+  padding: 140rpx 48rpx 56rpx;
+  position: relative;
+  z-index: 1;
+}
+.logo-ring {
+  width: 140rpx;
+  height: 140rpx;
+  margin: 0 auto 28rpx;
+  border-radius: 40rpx;
+  background: rgba(255, 255, 255, 0.18);
+  border: 2rpx solid rgba(255, 255, 255, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 12rpx 32rpx rgba(30, 27, 75, 0.25);
+}
+.logo-icon { font-size: 68rpx; }
+.app-name {
+  font-size: 44rpx;
+  font-weight: 700;
+  color: #FFFFFF;
+  letter-spacing: 4rpx;
+}
+.app-slogan {
+  margin-top: 12rpx;
+  font-size: 24rpx;
+  color: rgba(255, 255, 255, 0.75);
+  letter-spacing: 2rpx;
+}
+
+/* 表单卡：浮起 */
+.form-card {
+  position: relative;
+  z-index: 1;
+  padding: 40rpx 36rpx;
+  box-shadow: 0 16rpx 40rpx rgba(30, 27, 75, 0.18);
+}
+.ph { color: #94A3B8; }
+.login-btn { margin-top: 20rpx; }
+.error-tip {
+  color: #DC2626;
+  font-size: 24rpx;
+  text-align: center;
+  margin-top: 20rpx;
+}
+
+/* 演示账号 */
+.demo { margin-top: 20rpx; padding: 28rpx 32rpx; }
+.demo-title {
+  font-size: 24rpx;
+  color: #94A3B8;
+  margin-bottom: 20rpx;
+  letter-spacing: 1rpx;
+}
+.demo-row {
+  display: flex;
+  align-items: center;
+  padding: 14rpx 0;
+  border-radius: 16rpx;
+  transition: background 150ms ease;
+}
+.demo-row-hover { background: #F8FAFF; }
+.demo-badge { width: 76rpx; height: 76rpx; border-radius: 20rpx; font-size: 38rpx; margin-right: 22rpx; }
+.demo-info { flex: 1; }
+.demo-role { font-size: 28rpx; font-weight: 600; color: #1E1B4B; }
+.demo-acc { font-size: 24rpx; color: #475569; margin-top: 4rpx; }
+.demo-tip {
+  margin-top: 16rpx;
+  font-size: 22rpx;
+  color: #94A3B8;
+  text-align: center;
+}

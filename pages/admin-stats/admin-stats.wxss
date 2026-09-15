@@ -1,0 +1,52 @@
+.page { padding-bottom: 60rpx; }
+
+.picker-card .picker-value {
+  margin-top: 12rpx;
+  font-size: 30rpx;
+  font-weight: 500;
+  color: #4F46E5;
+}
+.picker-arrow { margin-left: 8rpx; }
+
+/* 总览 */
+.total-card { display: flex; padding: 36rpx 16rpx; }
+.total-item { flex: 1; text-align: center; }
+.total-num { font-size: 48rpx; font-weight: 700; color: #1E1B4B; }
+.total-num.done { color: #4F46E5; }
+
+/* 图表 */
+.chart-card { margin-top: 8rpx; }
+.chart-wrap { display: flex; align-items: center; margin-bottom: 24rpx; }
+.pie-canvas { width: 320rpx; height: 320rpx; flex-shrink: 0; }
+.legend { flex: 1; margin-left: 24rpx; }
+.legend-item { display: flex; align-items: center; padding: 8rpx 0; }
+.dot { width: 20rpx; height: 20rpx; border-radius: 6rpx; margin-right: 12rpx; }
+.legend-name { flex: 1; font-size: 24rpx; color: #1E1B4B; }
+.legend-val { font-size: 24rpx; font-weight: 600; color: #1E1B4B; }
+
+/* 条形列表 */
+.bar-row { display: flex; align-items: center; padding: 14rpx 0; }
+.bar-name { width: 200rpx; font-size: 24rpx; color: #475569; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.bar-track { flex: 1; height: 14rpx; background: #E0E7FF; border-radius: 7rpx; overflow: hidden; margin: 0 16rpx; }
+.bar-fill { height: 100%; background: linear-gradient(90deg, #4F46E5, #818CF8); border-radius: 7rpx; }
+.bar-val { width: 120rpx; text-align: right; font-size: 24rpx; color: #1E1B4B; }
+
+/* 教材汇总 */
+.book-row { display: flex; padding: 14rpx 0; border-bottom: 1rpx solid #F1F5F9; font-size: 26rpx; }
+.book-row:last-child { border-bottom: none; }
+.book-head { color: #94A3B8; font-size: 24rpx; }
+.col-title { flex: 1; margin-right: 16rpx; }
+.col-num { width: 110rpx; text-align: center; }
+.col-amount { width: 150rpx; text-align: right; color: #EA580C; }
+.book-head .col-amount { color: #94A3B8; }
+
+/* 漏订 */
+.miss-row { display: flex; align-items: center; padding: 16rpx 0; border-bottom: 1rpx solid #F1F5F9; }
+.miss-row:last-child { border-bottom: none; }
+.miss-info { flex: 1; }
+.miss-name { font-size: 28rpx; margin-right: 16rpx; }
+.miss-btn { padding: 8rpx 28rpx; font-size: 24rpx; width: auto; }
+
+/* 导出 */
+.export-wrap { margin: 40rpx 24rpx 0; }
+.export-tip { text-align: center; margin-top: 16rpx; }

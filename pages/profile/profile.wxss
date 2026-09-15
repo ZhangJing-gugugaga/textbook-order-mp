@@ -1,0 +1,85 @@
+.page { padding-bottom: 60rpx; }
+
+/* ===== 用户卡：渐变 hero ===== */
+.user-card {
+  display: flex;
+  align-items: center;
+  margin: 24rpx;
+  padding: 44rpx 36rpx;
+  border-radius: 28rpx;
+  color: #FFFFFF;
+  background: linear-gradient(135deg, #4F46E5 0%, #6366F1 60%, #818CF8 100%);
+  box-shadow: 0 12rpx 32rpx rgba(79, 70, 229, 0.35);
+  position: relative;
+  overflow: hidden;
+}
+.user-card::after {
+  content: '';
+  position: absolute;
+  right: -60rpx;
+  top: -60rpx;
+  width: 220rpx;
+  height: 220rpx;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+}
+.avatar {
+  width: 104rpx;
+  height: 104rpx;
+  border-radius: 32rpx;
+  background: rgba(255, 255, 255, 0.22);
+  border: 2rpx solid rgba(255, 255, 255, 0.35);
+  font-size: 44rpx;
+  font-weight: 700;
+  text-align: center;
+  line-height: 100rpx;
+  margin-right: 26rpx;
+  position: relative;
+  z-index: 1;
+}
+.user-info { position: relative; z-index: 1; }
+.user-name { font-size: 38rpx; font-weight: 700; letter-spacing: 1rpx; }
+.user-sub { font-size: 24rpx; opacity: 0.8; margin-top: 8rpx; }
+.user-card .tag {
+  margin-left: auto;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1rpx solid rgba(255, 255, 255, 0.35);
+  color: #FFFFFF;
+  position: relative;
+  z-index: 1;
+}
+
+/* ===== 提交记录 ===== */
+.sub-card { margin-top: 16rpx; }
+.sub-head { display: flex; align-items: center; margin-bottom: 8rpx; }
+.sub-head .h2 { flex: 1; margin-right: 12rpx; font-size: 30rpx; }
+.sub-books { margin: 16rpx 0; }
+.sub-book {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12rpx 0;
+  border-bottom: 1rpx dashed #E0E7FF;
+  font-size: 26rpx;
+}
+.sub-book:last-child { border-bottom: none; }
+.sub-book-title { color: #1E1B4B; flex: 1; margin-right: 20rpx; }
+.sub-book-qty {
+  color: #4F46E5;
+  font-weight: 600;
+  background: #EEF2FF;
+  padding: 2rpx 16rpx;
+  border-radius: 999rpx;
+  font-size: 22rpx;
+}
+.sub-amount { color: #EA580C; font-weight: 700; }
+
+/* ===== 菜单 ===== */
+.menu-card { padding: 0 32rpx; overflow: hidden; }
+.logout { color: #DC2626; }
+.menu-icon {
+  display: inline-flex;
+  width: 48rpx;
+  margin-right: 20rpx;
+  justify-content: center;
+}

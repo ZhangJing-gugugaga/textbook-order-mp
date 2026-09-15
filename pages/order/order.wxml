@@ -1,0 +1,47 @@
+<view class="page">
+  <!-- 任务信息 -->
+  <view class="order-head card">
+    <view class="h2">{{order.title}}</view>
+    <view class="text-sub head-meta">
+      <text>截止：{{order.deadline}}</text>
+      <text class="head-class">{{classInfo.collegeName}} {{classInfo.className}}</text>
+    </view>
+    <view class="tag tag-warning" wx:if="{{submittedAt}}">已提交 · {{submittedAt}}（截止前可修改）</view>
+    <view class="tag tag-blue" wx:else>首次填写</view>
+  </view>
+
+  <view class="section-title">本班关联教材（{{books.length}} 种）</view>
+
+  <!-- 教材列表 -->
+  <view class="book-item card {{b.checked ? 'picked' : ''}}" wx:for="{{books}}" wx:key="id" wx:for-item="b">
+    <view class="check" bindtap="toggleCheck" data-id="{{b.id}}">
+      <view class="check-box {{b.checked ? 'checked' : ''}}">{{b.checked ? '✓' : ''}}</view>
+    </view>
+    <view class="book-main" bindtap="toggleCheck" data-id="{{b.id}}">
+      <view class="book-title-row">
+        <view class="book-title">{{b.title}}</view>
+        <view class="tag {{b.required ? 'tag-required' : 'tag-optional'}}">{{b.required ? '必修' : '选修'}}</view>
+      </view>
+      <view class="text-weak book-meta">{{b.edition}} · {{b.author}} · {{b.press}}</view>
+      <view class="text-weak book-meta">课程：{{b.course}} · 选用教师：{{b.teacher}}</view>
+    </view>
+    <view class="book-right">
+      <view class="book-price">¥{{b.price}}</view>
+      <view class="stepper" wx:if="{{b.checked}}">
+        <view class="step-btn" catchtap="stepDown" data-id="{{b.id}}">−</view>
+        <view class="step-num">{{b.qty}}</view>
+        <view class="step-btn" catchtap="stepUp" data-id="{{b.id}}">＋</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部提交栏 -->
+  <view class="footer">
+    <view class="footer-info">
+      <view class="text-sub">已选 {{totalKinds}} 种 / 共 {{totalQty}} 本</view>
+      <view class="footer-amount">合计 ¥{{totalAmount}}</view>
+    </view>
+    <button class="btn-primary footer-btn" hover-class="button-hover" bindtap="onSubmit">提交征订</button>
+  </view>
+  <view class="footer-space"></view>
+</view>

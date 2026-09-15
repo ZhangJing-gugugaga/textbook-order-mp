@@ -1,0 +1,63 @@
+<view class="page">
+  <!-- 用户卡 -->
+  <view class="user-card">
+    <view class="avatar">{{session.name[0] || '?'}}</view>
+    <view class="user-info">
+      <view class="user-name">{{session.name}}</view>
+      <view class="user-sub">{{session.id}} · {{roleText}}</view>
+    </view>
+    <view class="tag tag-blue">{{session.role === 'admin' ? '教材管理员' : '学生'}}</view>
+  </view>
+
+  <!-- 学生：我的征订 -->
+  <block wx:if="{{session.role !== 'admin'}}">
+    <view class="section-title">我的征订记录</view>
+    <view class="card" wx:if="{{mySubs.length === 0}}">
+      <view class="empty"><view class="empty-icon">🗒️</view><view>还没有征订记录</view></view>
+    </view>
+    <view class="card sub-card" wx:for="{{mySubs}}" wx:key="orderId" wx:for-item="s">
+      <view class="sub-head">
+        <view class="h2">{{s.orderTitle}}</view>
+        <view class="tag {{s.status === 'open' ? 'tag-success' : 'tag-warning'}}">{{s.status === 'open' ? '进行中' : '已截止'}}</view>
+      </view>
+      <view class="text-weak">提交时间：{{s.submittedAt}}</view>
+      <view class="sub-books">
+        <view class="sub-book" wx:for="{{s.items}}" wx:key="bookId" wx:for-item="it">
+          <text class="sub-book-title">{{it.title}}</text>
+          <text class="sub-book-qty">×{{it.qty}}</text>
+        </view>
+      </view>
+      <view class="text-sub sub-amount">合计金额：¥{{s.amount}}</view>
+    </view>
+  </block>
+
+  <!-- 管理员：功能入口 -->
+  <block wx:else>
+    <view class="section-title">管理功能</view>
+    <view class="card menu-card">
+      <view class="cell" bindtap="goPublish">
+        <text>📢 发布征订任务</text><view class="cell-arrow">›</view>
+      </view>
+      <view class="cell" bindtap="goBooks">
+        <text>📖 教材信息管理（Excel导入）</text><view class="cell-arrow">›</view>
+      </view>
+      <view class="cell" bindtap="goStats">
+        <text>📊 征订统计与数据导出</text><view class="cell-arrow">›</view>
+      </view>
+    </view>
+  </block>
+
+  <!-- 其他 -->
+  <view class="section-title">其他</view>
+  <view class="card menu-card">
+    <view class="cell" bindtap="goMessages">
+      <text>🔔 消息通知</text><view class="cell-arrow">›</view>
+    </view>
+    <view class="cell" bindtap="onAbout">
+      <text>ℹ️ 关于（MVP 演示版）</text><view class="cell-arrow">›</view>
+    </view>
+    <view class="cell" bindtap="onLogout">
+      <text class="logout">退出登录</text><view class="cell-arrow">›</view>
+    </view>
+  </view>
+</view>

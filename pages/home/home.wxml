@@ -1,0 +1,107 @@
+<view class="page">
+  <!-- ===== 管理员概览 ===== -->
+  <block wx:if="{{session.role === 'admin'}}">
+    <view class="card-hero overview">
+      <view class="ov-head">
+        <view>
+          <view class="ov-title">教材征订工作台</view>
+          <view class="ov-sub">管理员 · {{session.name}}</view>
+        </view>
+        <view class="ov-badge">ADMIN</view>
+      </view>
+      <view class="ov-grid">
+        <view class="ov-item">
+          <view class="num-hero">{{overview.taskCount}}</view>
+          <view class="ov-label">征订任务</view>
+        </view>
+        <view class="ov-item">
+          <view class="num-hero">{{overview.bookCount}}</view>
+          <view class="ov-label">在库教材</view>
+        </view>
+        <view class="ov-item">
+          <view class="num-hero">{{overview.studentCount}}</view>
+          <view class="ov-label">在册学生</view>
+        </view>
+        <view class="ov-item">
+          <view class="num-hero">{{overview.submittedCount}}</view>
+          <view class="ov-label">已提交</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="section-title">快捷入口</view>
+    <view class="quick card">
+      <view class="quick-item" hover-class="quick-hover" bindtap="goPublish">
+        <view class="icon-badge icon-indigo">📢</view>
+        <view class="quick-label">发布征订</view>
+      </view>
+      <view class="quick-item" hover-class="quick-hover" bindtap="goBooks">
+        <view class="icon-badge icon-green">📖</view>
+        <view class="quick-label">教材管理</view>
+      </view>
+      <view class="quick-item" hover-class="quick-hover" bindtap="goStats">
+        <view class="icon-badge icon-orange">📊</view>
+        <view class="quick-label">统计导出</view>
+      </view>
+      <view class="quick-item" hover-class="quick-hover" bindtap="goMessages">
+        <view class="icon-badge icon-pink">🔔</view>
+        <view class="quick-label">消息通知</view>
+      </view>
+    </view>
+  </block>
+
+  <!-- 学生问候 -->
+  <block wx:if="{{session.role !== 'admin'}}">
+    <view class="card-hero student-hero">
+      <view class="ov-title student-title">Hi，{{session.name}}</view>
+      <view class="ov-sub">{{roleText}}</view>
+      <view class="student-hint">在下方选择征订任务，勾选本学期教材</view>
+    </view>
+  </block>
+
+  <!-- ===== 征订任务列表 ===== -->
+  <view class="section-title">征订任务</view>
+  <view wx:if="{{orders.length === 0}}" class="empty card">
+    <view class="empty-icon">📭</view>
+    <view>暂无征订任务</view>
+  </view>
+
+  <view class="order-card card" wx:for="{{orders}}" wx:key="id" wx:for-item="o">
+    <view class="order-accent {{o.status === 'open' ? 'open' : 'closed'}}"></view>
+    <view class="order-body">
+      <view class="order-head">
+        <view class="h2 order-title">{{o.title}}</view>
+        <view class="tag {{o.status === 'open' ? 'tag-success' : 'tag-warning'}}">{{o.status === 'open' ? '进行中' : '已截止'}}</view>
+      </view>
+      <view class="text-sub order-meta">
+        <text class="meta-item">⏱ 截止 {{o.deadline}}</text>
+      </view>
+
+      <block wx:if="{{session.role !== 'admin'}}">
+        <view class="order-status-row">
+          <text class="text-sub">我的提交</text>
+          <view class="tag {{o.submitted ? 'tag-success' : 'tag-warning'}}">{{o.submitted ? '已提交 ' + o.itemCount + ' 项' : '未提交'}}</view>
+        </view>
+        <button class="btn-primary order-btn" hover-class="button-hover" bindtap="goOrder" data-id="{{o.id}}" wx:if="{{o.status === 'open'}}">
+          {{o.submitted ? '修改我的勾选' : '去勾选教材'}}
+        </button>
+        <button class="btn-ghost order-btn" hover-class="button-hover" bindtap="goOrder" data-id="{{o.id}}" wx:else>查看详情</button>
+      </block>
+
+      <block wx:else>
+        <view class="progress-wrap" wx:if="{{o.total > 0}}">
+          <view class="progress-track">
+            <view class="progress-fill" style="width: {{o.rate}}%"></view>
+          </view>
+          <view class="text-weak progress-text">{{o.submitted}}/{{o.total}} 人已提交 · {{o.rate}}%</view>
+        </view>
+        <view class="order-btn-row">
+          <button class="btn-ghost order-btn half" hover-class="button-hover" bindtap="goStatsOne" data-id="{{o.id}}">查看统计</button>
+          <button class="btn-ghost order-btn half" hover-class="button-hover" bindtap="toggleStatus" data-id="{{o.id}}" data-status="{{o.status}}">
+            {{o.status === 'open' ? '设为截止' : '重新开放'}}
+          </button>
+        </view>
+      </block>
+    </view>
+  </view>
+</view>

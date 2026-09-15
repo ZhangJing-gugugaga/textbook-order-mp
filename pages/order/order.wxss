@@ -1,0 +1,113 @@
+.page { padding-bottom: 220rpx; }
+
+/* 任务信息头 */
+.order-head {
+  margin-top: 24rpx;
+  border-top: 6rpx solid;
+  border-image: linear-gradient(90deg, #4F46E5, #818CF8) 1;
+}
+.head-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 12rpx 0 16rpx;
+}
+.head-class { color: #4F46E5; font-weight: 500; }
+
+/* ===== 教材条目 ===== */
+.book-item {
+  display: flex;
+  align-items: flex-start;
+  margin-top: 16rpx;
+  transition: box-shadow 150ms ease;
+}
+.book-item.picked {
+  box-shadow: 0 1rpx 2rpx rgba(79, 70, 229, 0.06), 0 8rpx 24rpx rgba(79, 70, 229, 0.14);
+}
+.check { padding-top: 6rpx; margin-right: 20rpx; }
+.check-box {
+  width: 44rpx;
+  height: 44rpx;
+  border-radius: 14rpx;
+  border: 3rpx solid #C7D2FE;
+  color: #FFFFFF;
+  font-size: 28rpx;
+  font-weight: 700;
+  line-height: 40rpx;
+  text-align: center;
+  box-sizing: border-box;
+  transition: all 150ms ease;
+}
+.check-box.checked {
+  background: linear-gradient(135deg, #4F46E5, #6366F1);
+  border-color: #4F46E5;
+  box-shadow: 0 4rpx 10rpx rgba(79, 70, 229, 0.3);
+}
+.book-main { flex: 1; }
+.book-title-row { display: flex; align-items: center; }
+.book-title { font-size: 30rpx; font-weight: 600; margin-right: 12rpx; }
+.book-meta { margin-top: 6rpx; }
+.book-right { text-align: right; margin-left: 16rpx; }
+.book-price {
+  color: #EA580C;
+  font-weight: 700;
+  font-size: 32rpx;
+  font-family: 'DIN Alternate', -apple-system, sans-serif;
+}
+
+/* ===== 数量步进 ===== */
+.stepper {
+  display: flex;
+  align-items: center;
+  margin-top: 14rpx;
+  justify-content: flex-end;
+  background: #F8FAFF;
+  border-radius: 999rpx;
+  padding: 4rpx;
+  width: fit-content;
+  margin-left: auto;
+}
+.step-btn {
+  width: 52rpx;
+  height: 52rpx;
+  border-radius: 50%;
+  background: #FFFFFF;
+  color: #4F46E5;
+  font-size: 34rpx;
+  font-weight: 600;
+  text-align: center;
+  line-height: 50rpx;
+  box-shadow: 0 2rpx 8rpx rgba(30, 27, 75, 0.1);
+}
+.step-btn:active { background: #EEF2FF; }
+.step-num {
+  min-width: 64rpx;
+  text-align: center;
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #1E1B4B;
+}
+
+/* ===== 底部结算栏：浮起 ===== */
+.footer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: #FFFFFF;
+  display: flex;
+  align-items: center;
+  padding: 24rpx 32rpx calc(24rpx + env(safe-area-inset-bottom));
+  box-shadow: 0 -8rpx 32rpx rgba(30, 27, 75, 0.1);
+  border-radius: 32rpx 32rpx 0 0;
+}
+.footer-info { flex: 1; }
+.footer-amount {
+  font-size: 40rpx;
+  font-weight: 800;
+  color: #EA580C;
+  margin-top: 4rpx;
+  font-family: 'DIN Alternate', -apple-system, sans-serif;
+}
+.footer-btn { width: 300rpx; margin: 0; }
+.footer-space { height: 40rpx; }

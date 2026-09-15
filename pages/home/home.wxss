@@ -1,0 +1,97 @@
+.page { padding-bottom: 60rpx; }
+
+/* ===== 管理员概览 ===== */
+.overview { margin-top: 32rpx; }
+.ov-head {
+  display: flex;
+  align-items: flex-start;
+  position: relative;
+  z-index: 1;
+}
+.ov-title { font-size: 36rpx; font-weight: 700; letter-spacing: 1rpx; }
+.ov-sub { font-size: 24rpx; opacity: 0.8; margin-top: 8rpx; }
+.ov-badge {
+  margin-left: auto;
+  font-size: 20rpx;
+  font-weight: 700;
+  letter-spacing: 2rpx;
+  padding: 8rpx 20rpx;
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1rpx solid rgba(255, 255, 255, 0.35);
+}
+.ov-grid {
+  display: flex;
+  margin-top: 36rpx;
+  position: relative;
+  z-index: 1;
+}
+.ov-item { flex: 1; text-align: center; }
+.ov-item .num-hero { color: #FFFFFF; }
+.ov-label { font-size: 22rpx; opacity: 0.8; margin-top: 6rpx; }
+
+/* ===== 快捷入口 ===== */
+.quick {
+  display: flex;
+  padding: 32rpx 16rpx;
+}
+.quick-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 150ms ease;
+}
+.quick-hover { transform: translateY(-4rpx); }
+.quick-label {
+  font-size: 24rpx;
+  color: #475569;
+  margin-top: 14rpx;
+  font-weight: 500;
+}
+
+/* ===== 学生 hero ===== */
+.student-hero { margin-top: 32rpx; }
+.student-title { font-size: 40rpx; }
+.student-hint {
+  margin-top: 20rpx;
+  font-size: 24rpx;
+  opacity: 0.85;
+  position: relative;
+  z-index: 1;
+}
+
+/* ===== 任务卡 ===== */
+.order-card {
+  display: flex;
+  padding: 0;
+  overflow: hidden;
+  margin-top: 16rpx;
+}
+/* 左侧状态色条 */
+.order-accent { width: 8rpx; flex-shrink: 0; }
+.order-accent.open { background: linear-gradient(180deg, #4F46E5, #818CF8); }
+.order-accent.closed { background: linear-gradient(180deg, #F59E0B, #FBBF24); }
+.order-body { flex: 1; padding: 30rpx 30rpx 30rpx 26rpx; }
+.order-head { display: flex; align-items: flex-start; }
+.order-title { flex: 1; margin-right: 16rpx; line-height: 1.4; }
+.order-meta { margin: 12rpx 0 20rpx; }
+.meta-item {
+  display: inline-block;
+  background: #F8FAFF;
+  padding: 6rpx 18rpx;
+  border-radius: 999rpx;
+  font-size: 22rpx;
+  color: #475569;
+}
+.order-status-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 22rpx;
+}
+.order-btn { margin-top: 6rpx; }
+.order-btn-row { display: flex; gap: 20rpx; }
+.order-btn.half { flex: 1; }
+
+.progress-wrap { margin: 4rpx 0 24rpx; }
+.progress-text { margin-top: 12rpx; }
