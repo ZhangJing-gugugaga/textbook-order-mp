@@ -39,6 +39,10 @@
         <view class="icon-badge icon-green">📖</view>
         <view class="quick-label">教材管理</view>
       </view>
+      <view class="quick-item" hover-class="quick-hover" bindtap="goStudents">
+        <view class="icon-badge icon-blue">🎓</view>
+        <view class="quick-label">学生管理</view>
+      </view>
       <view class="quick-item" hover-class="quick-hover" bindtap="goStats">
         <view class="icon-badge icon-orange">📊</view>
         <view class="quick-label">统计导出</view>

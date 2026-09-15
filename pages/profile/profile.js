@@ -52,6 +52,7 @@ Page({
 
   goPublish() { wx.navigateTo({ url: '/pages/admin-publish/admin-publish' }); },
   goBooks() { wx.navigateTo({ url: '/pages/admin-books/admin-books' }); },
+  goStudents() { wx.navigateTo({ url: '/pages/admin-students/admin-students' }); },
   goStats() { wx.navigateTo({ url: '/pages/admin-stats/admin-stats' }); },
   goMessages() { wx.switchTab({ url: '/pages/messages/messages' }); },
 

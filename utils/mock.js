@@ -15,11 +15,12 @@ const MAJORS = [
 ];
 
 const CLASSES = [
-  { id: 'CST2401', majorId: 'CST', name: '2024级1班' },
-  { id: 'CST2402', majorId: 'CST', name: '2024级2班' },
-  { id: 'SE2401', majorId: 'SE', name: '2024级1班' },
-  { id: 'EN2401', majorId: 'EN', name: '2024级1班' },
-  { id: 'BM2401', majorId: 'BM', name: '2024级1班' }
+  // 班级 = 专业(majorId) + 年级(grade) + 班号(name)，借鉴高校教材系统 tb_grade 建模
+  { id: 'CST2401', majorId: 'CST', grade: '2024', name: '1班' },
+  { id: 'CST2402', majorId: 'CST', grade: '2024', name: '2班' },
+  { id: 'SE2401', majorId: 'SE', grade: '2024', name: '1班' },
+  { id: 'EN2401', majorId: 'EN', grade: '2024', name: '1班' },
+  { id: 'BM2401', majorId: 'BM', grade: '2024', name: '1班' }
 ];
 
 // 用户名单：登录时按 id + name 严格匹配
@@ -62,18 +63,18 @@ const USERS = [
 
 // 教材库：classIds 为适用班级
 const BOOKS = [
-  { id: 'B001', title: '高等数学（上册）', edition: '第七版', author: '同济大学数学系', press: '高等教育出版社', price: 45.0, course: '高等数学', teacher: '张伟', classIds: ['CST2401', 'CST2402', 'SE2401'], required: true },
-  { id: 'B002', title: '数据结构（C语言版）', edition: '第2版', author: '严蔚敏 李冬梅', press: '清华大学出版社', price: 39.0, course: '数据结构', teacher: '李强', classIds: ['CST2401', 'CST2402'], required: true },
-  { id: 'B003', title: '计算机科学导论', edition: '第4版', author: '贝赫鲁兹·佛罗赞', press: '机械工业出版社', price: 79.0, course: '专业导论', teacher: '李强', classIds: ['CST2401', 'CST2402', 'SE2401'], required: true },
-  { id: 'B004', title: '线性代数', edition: '第六版', author: '同济大学数学系', press: '高等教育出版社', price: 36.0, course: '线性代数', teacher: '陈红', classIds: ['CST2401', 'CST2402', 'SE2401'], required: true },
-  { id: 'B005', title: 'C语言程序设计', edition: '第五版', author: '谭浩强', press: '清华大学出版社', price: 36.0, course: '程序设计基础', teacher: '王建国', classIds: ['CST2401', 'CST2402', 'SE2401'], required: false },
-  { id: 'B006', title: '大学英语（综合教程3）', edition: '第三版', author: '李荫华', press: '上海外语教育出版社', price: 52.0, course: '大学英语', teacher: '刘丽', classIds: ['CST2401', 'CST2402', 'SE2401', 'EN2401', 'BM2401'], required: true },
-  { id: 'B007', title: '英语语音学教程', edition: '第2版', author: '张冠林', press: '外语教学与研究出版社', price: 29.9, course: '英语语音', teacher: '刘丽', classIds: ['EN2401'], required: true },
-  { id: 'B008', title: '英汉翻译教程', edition: '第3版', author: '张培基', press: '上海外语教育出版社', price: 42.0, course: '翻译理论与实践', teacher: '赵敏', classIds: ['EN2401'], required: false },
-  { id: 'B009', title: '管理学原理', edition: '第8版', author: '斯蒂芬·罗宾斯', press: '中国人民大学出版社', price: 68.0, course: '管理学', teacher: '孙明', classIds: ['BM2401'], required: true },
-  { id: 'B010', title: '微观经济学', edition: '第九版', author: '平狄克', press: '中国人民大学出版社', price: 88.0, course: '微观经济学', teacher: '孙明', classIds: ['BM2401'], required: true },
-  { id: 'B011', title: '市场营销学', edition: '第7版', author: '吴健安', press: '清华大学出版社', price: 55.0, course: '市场营销', teacher: '周华', classIds: ['BM2401'], required: false },
-  { id: 'B012', title: '思想道德与法治', edition: '2023年版', author: '本书编写组', press: '高等教育出版社', price: 22.0, course: '思政', teacher: '教务处', classIds: ['CST2401', 'CST2402', 'SE2401', 'EN2401', 'BM2401'], required: true }
+  { id: 'B001', isbn: '9787040396614', title: '高等数学（上册）', edition: '第七版', author: '同济大学数学系', press: '高等教育出版社', price: 45.0, course: '高等数学', teacher: '张伟', classIds: ['CST2401', 'CST2402', 'SE2401'], required: true },
+  { id: 'B002', isbn: '9787302214048', title: '数据结构（C语言版）', edition: '第2版', author: '严蔚敏 李冬梅', press: '清华大学出版社', price: 39.0, course: '数据结构', teacher: '李强', classIds: ['CST2401', 'CST2402'], required: true },
+  { id: 'B003', isbn: '9787111543450', title: '计算机科学导论', edition: '第4版', author: '贝赫鲁兹·佛罗赞', press: '机械工业出版社', price: 79.0, course: '专业导论', teacher: '李强', classIds: ['CST2401', 'CST2402', 'SE2401'], required: true },
+  { id: 'B004', isbn: '9787040396615', title: '线性代数', edition: '第六版', author: '同济大学数学系', press: '高等教育出版社', price: 36.0, course: '线性代数', teacher: '陈红', classIds: ['CST2401', 'CST2402', 'SE2401'], required: true },
+  { id: 'B005', isbn: '9787302481447', title: 'C语言程序设计', edition: '第五版', author: '谭浩强', press: '清华大学出版社', price: 36.0, course: '程序设计基础', teacher: '王建国', classIds: ['CST2401', 'CST2402', 'SE2401'], required: false },
+  { id: 'B006', isbn: '9787544656656', title: '大学英语（综合教程3）', edition: '第三版', author: '李荫华', press: '上海外语教育出版社', price: 52.0, course: '大学英语', teacher: '刘丽', classIds: ['CST2401', 'CST2402', 'SE2401', 'EN2401', 'BM2401'], required: true },
+  { id: 'B007', isbn: '9787519261957', title: '英语语音学教程', edition: '第2版', author: '张冠林', press: '外语教学与研究出版社', price: 29.9, course: '英语语音', teacher: '刘丽', classIds: ['EN2401'], required: true },
+  { id: 'B008', isbn: '9787544633251', title: '英汉翻译教程', edition: '第3版', author: '张培基', press: '上海外语教育出版社', price: 42.0, course: '翻译理论与实践', teacher: '赵敏', classIds: ['EN2401'], required: false },
+  { id: 'B009', isbn: '9787300260240', title: '管理学原理', edition: '第8版', author: '斯蒂芬·罗宾斯', press: '中国人民大学出版社', price: 68.0, course: '管理学', teacher: '孙明', classIds: ['BM2401'], required: true },
+  { id: 'B010', isbn: '9787300245926', title: '微观经济学', edition: '第九版', author: '平狄克', press: '中国人民大学出版社', price: 88.0, course: '微观经济学', teacher: '孙明', classIds: ['BM2401'], required: true },
+  { id: 'B011', isbn: '9787302540116', title: '市场营销学', edition: '第7版', author: '吴健安', press: '清华大学出版社', price: 55.0, course: '市场营销', teacher: '周华', classIds: ['BM2401'], required: false },
+  { id: 'B012', isbn: '9787040595131', title: '思想道德与法治', edition: '2023年版', author: '本书编写组', press: '高等教育出版社', price: 22.0, course: '思政', teacher: '教务处', classIds: ['CST2401', 'CST2402', 'SE2401', 'EN2401', 'BM2401'], required: true }
 ];
 
 // 征订任务：status open=进行中 closed=已截止

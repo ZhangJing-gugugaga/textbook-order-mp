@@ -1,0 +1,382 @@
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - link "Skip to content" [ref=e4] [cursor=pointer]:
+      - /url: "#start-of-content"
+    - banner [ref=e9]:
+      - heading "Navigation Menu" [level=2] [ref=e10]
+      - generic [ref=e11]:
+        - link "Homepage" [ref=e13] [cursor=pointer]:
+          - /url: /
+        - generic [ref=e16]:
+          - navigation "Global" [ref=e17]:
+            - list [ref=e18]:
+              - listitem [ref=e19]:
+                - button "Platform" [ref=e21] [cursor=pointer]
+              - listitem [ref=e24]:
+                - button "Solutions" [ref=e26] [cursor=pointer]
+              - listitem [ref=e29]:
+                - button "Resources" [ref=e31] [cursor=pointer]
+              - listitem [ref=e34]:
+                - button "Open Source" [ref=e36] [cursor=pointer]
+              - listitem [ref=e39]:
+                - button "Enterprise" [ref=e41] [cursor=pointer]
+              - listitem [ref=e44]:
+                - link "Pricing" [ref=e45] [cursor=pointer]:
+                  - /url: https://github.com/pricing
+          - generic [ref=e46]:
+            - button "Search or jump to, type / to search" [ref=e48] [cursor=pointer]
+            - link "Sign in" [ref=e55] [cursor=pointer]:
+              - /url: /login?return_to=https%3A%2F%2Fgithub.com%2FZhangJing-gugugaga%2Ftextbook-order-mp
+            - link "Sign up" [ref=e58] [cursor=pointer]:
+              - /url: /signup?ref_cta=Sign+up&ref_loc=header+logged+out&ref_page=%2F%3Cuser-name%3E%2F%3Crepo-name%3E&source=header-repo&source_repo=ZhangJing-gugugaga%2Ftextbook-order-mp
+            - button "Appearance settings" [ref=e61] [cursor=pointer]
+  - main [ref=e68]:
+    - generic [ref=e69]:
+      - generic [ref=e70]:
+        - generic [ref=e72]:
+          - link "ZhangJing-gugugaga" [ref=e76] [cursor=pointer]:
+            - /url: /ZhangJing-gugugaga
+          - generic [ref=e77]: /
+          - strong [ref=e78]:
+            - link "textbook-order-mp" [ref=e79] [cursor=pointer]:
+              - /url: /ZhangJing-gugugaga/textbook-order-mp
+          - generic [ref=e80]: Public
+        - generic [ref=e81]:
+          - list:
+            - listitem [ref=e82]:
+              - link "You must be signed in to change notification settings" [ref=e83] [cursor=pointer]:
+                - /url: /login?return_to=%2FZhangJing-gugugaga%2Ftextbook-order-mp
+                - text: Notifications
+            - listitem [ref=e86]:
+              - link "Fork 0" [ref=e87] [cursor=pointer]:
+                - /url: /login?return_to=%2FZhangJing-gugugaga%2Ftextbook-order-mp
+                - text: Fork
+                - generic "0" [ref=e90]
+            - listitem [ref=e91]:
+              - link "You must be signed in to star a repository" [ref=e93] [cursor=pointer]:
+                - /url: /login?return_to=%2FZhangJing-gugugaga%2Ftextbook-order-mp
+                - text: Star
+                - generic "0 users starred this repository" [ref=e96]: "0"
+      - navigation "Repository" [ref=e97]:
+        - list [ref=e98]:
+          - listitem [ref=e99]:
+            - link "Code" [ref=e100] [cursor=pointer]:
+              - /url: /ZhangJing-gugugaga/textbook-order-mp
+          - listitem [ref=e104]:
+            - link "Issues" [ref=e105] [cursor=pointer]:
+              - /url: /ZhangJing-gugugaga/textbook-order-mp/issues
+          - listitem [ref=e110]:
+            - link "Pull requests" [ref=e111] [cursor=pointer]:
+              - /url: /ZhangJing-gugugaga/textbook-order-mp/pulls
+          - listitem [ref=e115]:
+            - link "Actions" [ref=e116] [cursor=pointer]:
+              - /url: /ZhangJing-gugugaga/textbook-order-mp/actions
+          - listitem [ref=e120]:
+            - link "Projects" [ref=e121] [cursor=pointer]:
+              - /url: /ZhangJing-gugugaga/textbook-order-mp/projects
+          - listitem [ref=e125]:
+            - link "Security and quality" [ref=e126] [cursor=pointer]:
+              - /url: /ZhangJing-gugugaga/textbook-order-mp/security
+          - listitem [ref=e130]:
+            - link "Insights" [ref=e131] [cursor=pointer]:
+              - /url: /ZhangJing-gugugaga/textbook-order-mp/pulse
+    - generic [ref=e148]:
+      - generic [ref=e151]:
+        - generic [ref=e152]:
+          - generic [ref=e153]:
+            - button "main branch" [ref=e155] [cursor=pointer]:
+              - generic [ref=e156]: main
+            - generic [ref=e160]:
+              - link "Branches" [ref=e161] [cursor=pointer]:
+                - /url: /ZhangJing-gugugaga/textbook-order-mp/branches
+              - link "Tags" [ref=e164] [cursor=pointer]:
+                - /url: /ZhangJing-gugugaga/textbook-order-mp/tags
+          - generic [ref=e167]:
+            - combobox "Go to file" [ref=e175]
+            - button "Code" [ref=e176] [cursor=pointer]
+        - generic [ref=e179]:
+          - generic [ref=e180]:
+            - generic [ref=e182]:
+              - heading "Latest commit" [level=2] [ref=e183]
+              - generic [ref=e186]:
+                - heading "History" [level=2] [ref=e187]
+                - link "1 Commit" [ref=e188] [cursor=pointer]:
+                  - /url: /ZhangJing-gugugaga/textbook-order-mp/commits/main/
+            - heading "Folders and files" [level=2] [ref=e191]
+            - table "Folders and files" [ref=e192]:
+              - rowgroup:
+                - row "Name Last commit message Last commit date":
+                  - columnheader "Name"
+                  - columnheader "Last commit message"
+                  - columnheader "Last commit date"
+              - rowgroup [ref=e193]:
+                - row "pages, (Directory)" [ref=e194]:
+                  - cell [ref=e195]:
+                    - link "pages, (Directory)" [ref=e202] [cursor=pointer]:
+                      - /url: /ZhangJing-gugugaga/textbook-order-mp/tree/main/pages
+                      - text: pages
+                  - cell [ref=e203]
+                  - cell [ref=e205]
+                - row "utils, (Directory)" [ref=e208]:
+                  - cell [ref=e209]:
+                    - link "utils, (Directory)" [ref=e216] [cursor=pointer]:
+                      - /url: /ZhangJing-gugugaga/textbook-order-mp/tree/main/utils
+                      - text: utils
+                  - cell [ref=e217]
+                  - cell [ref=e219]
+                - row ".gitignore, (File)" [ref=e222]:
+                  - cell [ref=e223]:
+                    - link ".gitignore, (File)" [ref=e230] [cursor=pointer]:
+                      - /url: /ZhangJing-gugugaga/textbook-order-mp/blob/main/.gitignore
+                      - text: .gitignore
+                  - cell [ref=e231]
+                  - cell [ref=e233]
+                - row "README.md, (File)" [ref=e236]:
+                  - cell [ref=e237]:
+                    - link "README.md, (File)" [ref=e244] [cursor=pointer]:
+                      - /url: /ZhangJing-gugugaga/textbook-order-mp/blob/main/README.md
+                      - text: README.md
+                  - cell [ref=e245]
+                  - cell [ref=e247]
+                - row "app.js, (File)" [ref=e250]:
+                  - cell [ref=e251]:
+                    - link "app.js, (File)" [ref=e258] [cursor=pointer]:
+                      - /url: /ZhangJing-gugugaga/textbook-order-mp/blob/main/app.js
+                      - text: app.js
+                  - cell [ref=e259]
+                  - cell [ref=e261]
+                - row "app.json, (File)" [ref=e264]:
+                  - cell [ref=e265]:
+                    - link "app.json, (File)" [ref=e272] [cursor=pointer]:
+                      - /url: /ZhangJing-gugugaga/textbook-order-mp/blob/main/app.json
+                      - text: app.json
+                  - cell [ref=e273]
+                  - cell [ref=e275]
+                - row "app.wxss, (File)" [ref=e278]:
+                  - cell [ref=e279]:
+                    - link "app.wxss, (File)" [ref=e286] [cursor=pointer]:
+                      - /url: /ZhangJing-gugugaga/textbook-order-mp/blob/main/app.wxss
+                      - text: app.wxss
+                  - cell [ref=e287]
+                  - cell [ref=e289]
+                - row "project.config.json, (File)" [ref=e292]:
+                  - cell [ref=e293]:
+                    - link "project.config.json, (File)" [ref=e300] [cursor=pointer]:
+                      - /url: /ZhangJing-gugugaga/textbook-order-mp/blob/main/project.config.json
+                      - text: project.config.json
+                  - cell [ref=e301]
+                  - cell [ref=e303]
+                - row "sitemap.json, (File)" [ref=e306]:
+                  - cell [ref=e307]:
+                    - link "sitemap.json, (File)" [ref=e314] [cursor=pointer]:
+                      - /url: /ZhangJing-gugugaga/textbook-order-mp/blob/main/sitemap.json
+                      - text: sitemap.json
+                  - cell [ref=e315]
+                  - cell [ref=e317]
+          - generic [ref=e321]:
+            - generic [ref=e322]:
+              - heading "Repository files navigation" [level=2] [ref=e323]
+              - navigation "Repository files" [ref=e324]:
+                - list [ref=e325]:
+                  - listitem [ref=e326]:
+                    - link "README" [ref=e327] [cursor=pointer]:
+                      - /url: "#"
+              - button "Outline" [ref=e332] [cursor=pointer]
+            - article [ref=e336]:
+              - generic [ref=e337]:
+                - heading "教材征订小程序 · MVP 演示版" [level=1] [ref=e338]
+                - 'link "Permalink: 教材征订小程序 · MVP 演示版" [ref=e339] [cursor=pointer]':
+                  - /url: "#教材征订小程序--mvp-演示版"
+              - paragraph [ref=e342]: 微信小程序原生开发，全部数据为本地 mock（无需服务器），用于向老师演示完整征订流程与数据统计能力。
+              - generic [ref=e343]:
+                - heading "功能清单" [level=2] [ref=e344]
+                - 'link "Permalink: 功能清单" [ref=e345] [cursor=pointer]':
+                  - /url: "#功能清单"
+              - table [ref=e349]:
+                - rowgroup [ref=e350]:
+                  - row [ref=e351]:
+                    - columnheader "模块" [ref=e352]
+                    - columnheader "说明" [ref=e353]
+                - rowgroup [ref=e354]:
+                  - row [ref=e355]:
+                    - cell "登录" [ref=e356]
+                    - cell "学号/工号 + 姓名严格匹配在册名单，匹配不上无法进入；自动识别学生 / 教材管理员角色" [ref=e357]
+                  - row [ref=e358]:
+                    - cell "学生端" [ref=e359]
+                    - cell "按学号自动带出本班关联教材 → 勾选 + 数量 → 提交，截止前可修改" [ref=e360]
+                  - row [ref=e361]:
+                    - cell "管理员端" [ref=e362]
+                    - cell "发布征订任务（选班级 + 勾教材 + 设截止）、教材管理（手动添加 / Excel 粘贴批量导入）、任务状态控制" [ref=e363]
+                  - row [ref=e364]:
+                    - cell "统计导出" [ref=e365]
+                    - cell "班级 / 专业 / 学院订书比例（条形图 + 饼图）、教材征订数量与金额汇总、漏订催办名单、一键导出 CSV" [ref=e366]
+                  - row [ref=e367]:
+                    - cell "消息" [ref=e368]
+                    - cell "站内信占位（微信订阅消息推送能力待定）" [ref=e369]
+                  - row [ref=e370]:
+                    - cell "支付" [ref=e371]
+                    - cell "按老师需求，本期无支付环节" [ref=e372]
+              - generic [ref=e373]:
+                - heading "演示账号" [level=2] [ref=e374]
+                - 'link "Permalink: 演示账号" [ref=e375] [cursor=pointer]':
+                  - /url: "#演示账号"
+              - table [ref=e379]:
+                - rowgroup [ref=e380]:
+                  - row [ref=e381]:
+                    - columnheader "角色" [ref=e382]
+                    - columnheader "账号" [ref=e383]
+                    - columnheader "姓名" [ref=e384]
+                - rowgroup [ref=e385]:
+                  - row [ref=e386]:
+                    - cell "学生（计算机2401班）" [ref=e387]
+                    - cell [ref=e388]:
+                      - code [ref=e389]: "20240101"
+                    - cell "张敬" [ref=e390]
+                  - row [ref=e391]:
+                    - cell "教材管理员" [ref=e392]
+                    - cell [ref=e393]:
+                      - code [ref=e394]: T0001
+                    - cell "王教材" [ref=e395]
+              - paragraph [ref=e396]: 登录页点击演示账号卡片可自动填入。
+              - generic [ref=e397]:
+                - heading "如何运行" [level=2] [ref=e398]
+                - 'link "Permalink: 如何运行" [ref=e399] [cursor=pointer]':
+                  - /url: "#如何运行"
+              - list [ref=e402]:
+                - listitem [ref=e403]:
+                  - text: 安装
+                  - link "微信开发者工具" [ref=e404] [cursor=pointer]:
+                    - /url: https://developers.weixin.qq.com/miniprogram/dev/devtools/download.html
+                  - text: （稳定版即可）
+                - listitem [ref=e405]:
+                  - text: 打开工具 → 导入项目 → 选择本目录（
+                  - code [ref=e406]: textbook-order-mp
+                  - text: ）
+                - listitem [ref=e407]:
+                  - text: AppID 选择「测试号」（project.config.json 已预置
+                  - code [ref=e408]: touristappid
+                  - text: ，游客模式可直接跑）
+                - listitem [ref=e409]: 编译即可在模拟器体验；点「预览」生成二维码，自己微信扫码可真机体验
+              - generic [ref=e410]:
+                - heading "如何给老师演示" [level=2] [ref=e411]
+                - 'link "Permalink: 如何给老师演示" [ref=e412] [cursor=pointer]':
+                  - /url: "#如何给老师演示"
+              - paragraph [ref=e415]:
+                - strong [ref=e416]: 方式 A · 当面演示（推荐，零配置）
+                - text: 同一台手机上切换账号即可演示完整闭环：
+              - list [ref=e417]:
+                - listitem [ref=e418]: 用学生账号登录 → 勾选教材 → 提交
+                - listitem [ref=e419]: 退出 → 用管理员账号登录 → 查看统计（比例实时变化）→ 导出表格
+              - blockquote [ref=e420]:
+                - paragraph [ref=e421]: Mock 数据存在本机 storage，同一台设备上所有角色共享数据，切换账号能看到对方提交的结果。
+              - paragraph [ref=e422]:
+                - strong [ref=e423]: 方式 B · 远程扫码体验（需要 AppID）
+              - list [ref=e424]:
+                - listitem [ref=e425]:
+                  - text: 注册小程序账号：
+                  - link "mp.weixin.qq.com" [ref=e426] [cursor=pointer]:
+                    - /url: https://mp.weixin.qq.com
+                  - text: → 立即注册 → 小程序（个人主体免费），拿到 AppID 填入
+                  - code [ref=e427]: project.config.json
+                - listitem [ref=e428]: 开发者工具右上角「上传」→ 微信公众平台「版本管理」→ 将上传版本设为「体验版」
+                - listitem [ref=e429]: 「成员管理」→ 添加老师的微信号 为体验成员
+                - listitem [ref=e430]: 生成体验版二维码发给老师，微信扫码即可使用
+              - blockquote [ref=e431]:
+                - paragraph [ref=e432]: 注意：每台手机的 mock 数据相互独立，老师手机里是全新的种子数据，需自行走一遍「管理员发布 → 学生提交 → 管理员看统计」流程。
+              - generic [ref=e433]:
+                - heading "已知边界（MVP）" [level=2] [ref=e434]
+                - 'link "Permalink: 已知边界（MVP）" [ref=e435] [cursor=pointer]':
+                  - /url: "#已知边界mvp"
+              - list [ref=e438]:
+                - listitem [ref=e439]: 数据为本地 mock，刷新/删除小程序即重置为种子数据
+                - listitem [ref=e440]: Excel 导入采用「复制粘贴解析」方案（真机端解析 xlsx 文件需要后端或云函数，见下）
+                - listitem [ref=e441]: 消息推送为站内占位，订阅消息待老师确认后接入
+                - listitem [ref=e442]: CSV 导出 = 生成文本复制剪贴板，电脑 Excel 打开后直接粘贴
+              - generic [ref=e443]:
+                - heading "后续升级路径（接真实后端）" [level=2] [ref=e444]
+                - 'link "Permalink: 后续升级路径（接真实后端）" [ref=e445] [cursor=pointer]':
+                  - /url: "#后续升级路径接真实后端"
+              - list [ref=e448]:
+                - listitem [ref=e449]:
+                  - text: 数据层集中在
+                  - code [ref=e450]: utils/store.js
+                  - text: ，接口签名已抽象好，接后端时只需替换该文件实现（或改造成 wx.request 调 API），页面零改动
+                - listitem [ref=e451]:
+                  - text: Excel 真文件解析：
+                  - code [ref=e452]: wx.chooseMessageFile
+                  - text: 选文件 + 云函数解析（
+                  - code [ref=e453]: xlsx
+                  - text: 库）→ 批量入库
+                - listitem [ref=e454]:
+                  - text: 通知推送：微信订阅消息（
+                  - code [ref=e455]: wx.requestSubscribeMessage
+                  - text: ），四类节点定时触发
+                - listitem [ref=e456]: 登录对接：学校统一身份认证或学信网校验（需学校接口配合）
+              - generic [ref=e457]:
+                - heading "技术栈" [level=2] [ref=e458]
+                - 'link "Permalink: 技术栈" [ref=e459] [cursor=pointer]':
+                  - /url: "#技术栈"
+              - paragraph [ref=e462]: 微信小程序原生（WXML/WXSS/JS），无第三方依赖、无 npm 构建，Canvas 2D 手绘饼图。
+      - generic [ref=e465]:
+        - generic [ref=e466]:
+          - heading "About" [level=2] [ref=e467]
+          - paragraph [ref=e468]: 教材征订小程序
+          - heading "Resources" [level=3] [ref=e469]
+          - link "Readme" [ref=e471] [cursor=pointer]:
+            - /url: "#readme-ov-file"
+          - link "Activity" [ref=e475] [cursor=pointer]:
+            - /url: /ZhangJing-gugugaga/textbook-order-mp/activity
+          - heading "Stars" [level=3] [ref=e478]
+          - generic [ref=e480]:
+            - strong [ref=e483]: "0"
+            - text: stars
+          - heading "Watchers" [level=3] [ref=e484]
+          - generic [ref=e486]:
+            - strong [ref=e489]: "0"
+            - text: watching
+          - heading "Forks" [level=3] [ref=e490]
+          - link [ref=e492] [cursor=pointer]:
+            - /url: /ZhangJing-gugugaga/textbook-order-mp/forks
+            - strong [ref=e496]: "0"
+            - text: forks
+          - link "Report repository" [ref=e498] [cursor=pointer]:
+            - /url: /contact/report-content?content_url=https%3A%2F%2Fgithub.com%2FZhangJing-gugugaga%2Ftextbook-order-mp&report=ZhangJing-gugugaga+%28user%29
+        - heading "Releases" [level=2] [ref=e500]
+        - heading "Packages" [level=2] [ref=e504]
+        - heading "Contributors" [level=2] [ref=e507]
+        - heading "Languages" [level=2] [ref=e510]
+  - contentinfo [ref=e513]:
+    - heading "Footer" [level=2] [ref=e514]
+    - generic [ref=e515]:
+      - generic [ref=e516]:
+        - link "GitHub Homepage" [ref=e517] [cursor=pointer]:
+          - /url: https://github.com
+        - generic [ref=e520]: © 2026 GitHub, Inc.
+      - navigation "Footer" [ref=e521]:
+        - heading "Footer navigation" [level=3] [ref=e522]
+        - list "Footer navigation" [ref=e523]:
+          - listitem [ref=e524]:
+            - link "Terms" [ref=e525] [cursor=pointer]:
+              - /url: https://docs.github.com/site-policy/github-terms/github-terms-of-service
+          - listitem [ref=e526]:
+            - link "Privacy" [ref=e527] [cursor=pointer]:
+              - /url: https://docs.github.com/site-policy/privacy-policies/github-privacy-statement
+          - listitem [ref=e528]:
+            - link "Security" [ref=e529] [cursor=pointer]:
+              - /url: https://github.com/security
+          - listitem [ref=e530]:
+            - link "Status" [ref=e531] [cursor=pointer]:
+              - /url: https://www.githubstatus.com/
+          - listitem [ref=e532]:
+            - link "Community" [ref=e533] [cursor=pointer]:
+              - /url: https://github.community/
+          - listitem [ref=e534]:
+            - link "Docs" [ref=e535] [cursor=pointer]:
+              - /url: https://docs.github.com/
+          - listitem [ref=e536]:
+            - link "Contact" [ref=e537] [cursor=pointer]:
+              - /url: https://support.github.com?tags=dotcom-footer
+          - listitem [ref=e538]:
+            - button "Manage cookies" [ref=e540] [cursor=pointer]
+          - listitem [ref=e541]:
+            - button "Do not share my personal information" [ref=e543] [cursor=pointer]

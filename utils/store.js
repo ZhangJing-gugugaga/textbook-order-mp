@@ -85,9 +85,15 @@ function getClassFull(classId) {
   if (!cls) return null;
   const major = getMajors().find((m) => m.id === cls.majorId);
   const college = major ? getColleges().find((c) => c.id === major.collegeId) : null;
+  // 班级 = 专业 + 年级 + 班号（借鉴 tb_grade 建模：major + year + number）
+  const className = major
+    ? major.name + (cls.grade || '') + '级' + (cls.name || '')
+    : classId;
   return {
     id: classId,
-    className: cls.name,
+    className: className,
+    grade: cls.grade || '',
+    classNo: cls.name || '',
     majorId: major ? major.id : '',
     majorName: major ? major.name : '',
     collegeId: college ? college.id : '',
@@ -112,34 +118,120 @@ function deleteBook(bookId) {
 }
 
 // 粘贴批量导入：每行一本，字段用 | 或 Tab 分隔
-// 顺序：书名|版次|作者|出版社|单价|课程名|选用教师|适用班级(逗号分隔班级id)|必修(是/否)
+// 兼容两种格式（按第 2 列是否形如 ISBN 数字自动识别）：
+//   带 ISBN：书名|ISBN|版次|作者|出版社|单价|课程名|选用教师|适用班级(逗号分隔)|必修(是/否)
+//   不带：  书名|版次|作者|出版社|单价|课程名|选用教师|适用班级(逗号分隔)|必修(是/否)
 function importBooks(text) {
   const lines = String(text).split('\n').map((s) => s.trim()).filter(Boolean);
   const added = [];
   const books = getBooks();
   lines.forEach((line) => {
     const cols = line.split(/\t|\|/).map((s) => s.trim());
-    if (cols.length < 7) return;
-    const price = parseFloat(cols[4]);
+    // 识别 ISBN 列（10~13 位数字或连字符组合）
+    const hasIsbn = /^\d{9,13}[-\d]*$/.test(cols[1] || '');
+    const isbn = hasIsbn ? cols[1] : '';
+    const c = hasIsbn ? [cols[0]].concat(cols.slice(2)) : cols;
+    if (c.length < 7) return;
+    const price = parseFloat(c[4]);
     if (isNaN(price)) return;
-    const classIds = (cols[7] || '').split(/[,，]/).map((s) => s.trim()).filter(Boolean);
+    const classIds = (c[7] || '').split(/[,，]/).map((s) => s.trim()).filter(Boolean);
     const b = {
       id: 'B' + String(Date.now()) + String(added.length),
-      title: cols[0],
-      edition: cols[1],
-      author: cols[2],
-      press: cols[3],
+      isbn: isbn,
+      title: c[0],
+      edition: c[1],
+      author: c[2],
+      press: c[3],
       price: price,
-      course: cols[5],
-      teacher: cols[6],
+      course: c[5],
+      teacher: c[6],
       classIds: classIds,
-      required: (cols[8] || '是') !== '否'
+      required: (c[8] || '是') !== '否'
     };
     books.unshift(b);
     added.push(b);
   });
   set(KEY.BOOKS, books);
   return added;
+}
+
+// ============ 学生批量导入（一键建链） ============
+// 每行一个学生，字段用 | 或 Tab 分隔：学号|姓名|学院名称|专业名称|班级全称(如 2024级1班)
+// 按「名称」自动匹配或创建 学院→专业→班级 链（借鉴层级外键模型：Class→Major→College）
+function findOrCreateCollege(name) {
+  const list = getColleges();
+  let hit = list.find((x) => x.name === name);
+  if (hit) return hit.id;
+  const id = 'C' + Date.now() + list.length;
+  list.push({ id, name });
+  set(KEY.COLLEGES, list);
+  return id;
+}
+
+function findOrCreateMajor(name, collegeId) {
+  const list = getMajors();
+  let hit = list.find((x) => x.name === name && x.collegeId === collegeId);
+  if (hit) return hit.id;
+  const id = 'M' + Date.now() + list.length;
+  list.push({ id, collegeId, name });
+  set(KEY.MAJORS, list);
+  return id;
+}
+
+function findOrCreateClass(majorId, grade, name) {
+  const list = getClasses();
+  let hit = list.find((x) => x.majorId === majorId && x.grade === grade && x.name === name);
+  if (hit) return hit.id;
+  const id = 'K' + Date.now() + list.length;
+  list.push({ id, majorId, grade, name });
+  set(KEY.CLASSES, list);
+  return id;
+}
+
+function addStudent(id, name, classId) {
+  const users = getUsers();
+  if (users.some((u) => u.id === id)) return false; // 学号已存在
+  users.push({ id, name, role: 'student', classId, collegeId: '' });
+  set(KEY.USERS, users);
+  return true;
+}
+
+function deleteStudent(id) {
+  set(KEY.USERS, getUsers().filter((u) => !(u.id === id && u.role === 'student')));
+}
+
+function importStudents(text) {
+  const lines = String(text).split('\n').map((s) => s.trim()).filter(Boolean);
+  const ok = [];
+  const skipped = [];
+  const existingIds = {};
+  getUsers().forEach((u) => { existingIds[u.id] = true; });
+  lines.forEach((line) => {
+    const cols = line.split(/\t|\|/).map((s) => s.trim());
+    if (cols.length < 5) { skipped.push(line); return; }
+    const [id, name, collegeName, majorName, className] = cols;
+    if (!id || !name || !collegeName || !majorName || !className) { skipped.push(line); return; }
+    // 先查重再建链，避免跳过行留下垃圾组织数据
+    if (existingIds[id]) { skipped.push(line + '（学号已存在）'); return; }
+    existingIds[id] = true;
+    // 班级全称解析：2024级1班 → 年级 2024 + 班号 1班
+    const m = className.match(/^(\d{4})级(.+)$/);
+    const grade = m ? m[1] : '';
+    const classNo = m ? m[2] : className;
+    const collegeId = findOrCreateCollege(collegeName);
+    const majorId = findOrCreateMajor(majorName, collegeId);
+    const classId = findOrCreateClass(majorId, grade, classNo);
+    if (addStudent(id, name, classId)) {
+      ok.push({ id, name });
+    } else {
+      skipped.push(line + '（学号已存在）');
+    }
+  });
+  return { added: ok, skipped };
+}
+
+function getStudents() {
+  return getUsers().filter((u) => u.role === 'student');
 }
 
 // ---------- 征订任务 ----------
@@ -309,6 +401,13 @@ module.exports = {
   addBook,
   deleteBook,
   importBooks,
+  findOrCreateCollege,
+  findOrCreateMajor,
+  findOrCreateClass,
+  addStudent,
+  deleteStudent,
+  importStudents,
+  getStudents,
   getOrders,
   getOrder,
   publishOrder,

@@ -70,8 +70,9 @@
     <view class="sheet" catchtap="">
       <view class="h2 sheet-title">批量导入（Excel 粘贴）</view>
       <view class="text-weak import-tip">
-        在 Excel 中选中数据列复制后粘贴到下方。每行一本教材，字段用 Tab 或 | 分隔：
-        书名 | 版次 | 作者 | 出版社 | 单价 | 课程名 | 选用教师 | 适用班级ID(逗号分隔) | 必修(是/否)
+        在 Excel 中选中数据列复制后粘贴到下方。每行一本教材，字段用 Tab 或 | 分隔（兼容两种格式）：
+        书名 | ISBN | 版次 | 作者 | 出版社 | 单价 | 课程名 | 选用教师 | 适用班级ID(逗号分隔) | 必修(是/否)
+        或不带 ISBN：书名 | 版次 | 作者 | 出版社 | 单价 | 课程名 | 选用教师 | 适用班级ID | 必修
       </view>
       <textarea
         class="import-area"

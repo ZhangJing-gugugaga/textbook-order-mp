@@ -43,7 +43,7 @@ Page({
           const m = majors.find((x) => x.id === c.majorId);
           return {
             id: c.id,
-            name: c.name,
+            name: (c.grade || '') + '级' + (c.name || ''),
             majorName: m.name,
             picked: !!this.pickedClasses[c.id]
           };

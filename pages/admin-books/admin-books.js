@@ -33,15 +33,11 @@ Page({
 
   loadBooks() {
     const kw = this.data.keyword.trim();
-    const classes = store.getClasses();
-    const majors = store.getMajors();
     let books = store.getBooks().map((b) => {
-      // 适用班级显示为「专业+班名」
+      // 适用班级显示为完整班级名（专业+年级+班号）
       const names = (b.classIds || []).map((cid) => {
-        const cls = classes.find((x) => x.id === cid);
-        if (!cls) return cid;
-        const m = majors.find((x) => x.id === cls.majorId);
-        return (m ? m.name : '') + cls.name;
+        const info = store.getClassFull(cid);
+        return info ? info.className : cid;
       });
       return Object.assign({}, b, { classNames: names.length ? names.join('、') : '未指定' });
     });

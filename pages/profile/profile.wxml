@@ -41,6 +41,9 @@
       <view class="cell" bindtap="goBooks">
         <text>📖 教材信息管理（Excel导入）</text><view class="cell-arrow">›</view>
       </view>
+      <view class="cell" bindtap="goStudents">
+        <text>🎓 学生信息管理（批量导入）</text><view class="cell-arrow">›</view>
+      </view>
       <view class="cell" bindtap="goStats">
         <text>📊 征订统计与数据导出</text><view class="cell-arrow">›</view>
       </view>
