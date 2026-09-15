@@ -38,3 +38,6 @@ screenshots/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# ===== Playwright CLI 本地快照 =====
+.playwright-cli/
