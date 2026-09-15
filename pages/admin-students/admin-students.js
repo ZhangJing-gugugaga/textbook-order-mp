@@ -1,9 +1,17 @@
 const store = require('../../utils/store');
+const xlsx = require('../../utils/xlsx-lite.js');
 
 const DEMO_IMPORT =
   '20240901|王小明|计算机科学与工程学院|计算机科学与技术|2024级1班\n' +
   '20240902|李小红|外国语学院|英语|2024级1班\n' +
   '20240903|陈小刚|经济管理学院|工商管理|2024级1班';
+
+// 学生导入模板（表头 + 示例行）
+const TEMPLATE_ROWS = [
+  ['学号', '姓名', '学院名称', '专业名称', '班级全称'],
+  ['20240901', '王小明', '计算机科学与工程学院', '计算机科学与技术', '2024级1班'],
+  ['20240902', '李小红', '外国语学院', '英语', '2024级1班']
+];
 
 Page({
   data: {
@@ -11,6 +19,8 @@ Page({
     students: [],
     showAdd: false,
     showImport: false,
+    pasteMode: false,
+    parsing: false,
     importText: '',
     importResult: null,
     form: { id: '', name: '', classId: '' },
@@ -94,6 +104,57 @@ Page({
   closeImport() { this.setData({ showImport: false }); },
   onImportInput(e) { this.setData({ importText: e.detail.value }); },
   fillDemo() { this.setData({ importText: DEMO_IMPORT }); },
+
+  // Excel 文件导入（主入口）：从微信会话选择 xlsx → 解析 → 按行导入
+  chooseExcel() {
+    wx.chooseMessageFile({
+      count: 1,
+      type: 'file',
+      extension: ['xlsx'],
+      success: (res) => {
+        const file = res.tempFiles && res.tempFiles[0];
+        if (!file) return;
+        this.setData({ parsing: true });
+        try {
+          const fs = wx.getFileSystemManager();
+          const buf = fs.readFileSync(file.path);
+          const wb = xlsx.readWorkbook(buf);
+          const result = store.importStudentsFromRows(wb.rows);
+          this.setData({ parsing: false, importResult: result });
+          this.loadStudents();
+          if (result.added.length > 0) {
+            wx.showToast({ title: '导入 ' + result.added.length + ' 人', icon: 'success' });
+          } else {
+            wx.showToast({ title: '未解析到有效数据', icon: 'none', duration: 2500 });
+          }
+        } catch (e) {
+          this.setData({ parsing: false });
+          wx.showToast({ title: '解析失败：' + e.message, icon: 'none', duration: 3000 });
+        }
+      }
+    });
+  },
+
+  // 生成并打开导入模板（xlsx），打开后可通过右上角菜单转发到电脑
+  downloadTemplate() {
+    try {
+      const buf = xlsx.makeWorkbook(TEMPLATE_ROWS, '学生导入模板');
+      const path = wx.env.USER_DATA_PATH + '/student-template.xlsx';
+      const fs = wx.getFileSystemManager();
+      fs.writeFileSync(path, buf, 'binary');
+      wx.openDocument({
+        filePath: path,
+        fileType: 'xlsx',
+        showMenu: true,
+        fail() {
+          wx.showToast({ title: '模板已生成：' + path, icon: 'none', duration: 3000 });
+        }
+      });
+      wx.showToast({ title: '模板已生成，可转发到电脑', icon: 'none', duration: 2500 });
+    } catch (e) {
+      wx.showToast({ title: '生成失败：' + e.message, icon: 'none' });
+    }
+  },
 
   doImport() {
     const text = this.data.importText.trim();

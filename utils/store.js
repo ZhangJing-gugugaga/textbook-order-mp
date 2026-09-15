@@ -117,18 +117,23 @@ function deleteBook(bookId) {
   set(KEY.BOOKS, getBooks().filter((b) => b.id !== bookId));
 }
 
-// 粘贴批量导入：每行一本，字段用 | 或 Tab 分隔
-// 兼容两种格式（按第 2 列是否形如 ISBN 数字自动识别）：
-//   带 ISBN：书名|ISBN|版次|作者|出版社|单价|课程名|选用教师|适用班级(逗号分隔)|必修(是/否)
-//   不带：  书名|版次|作者|出版社|单价|课程名|选用教师|适用班级(逗号分隔)|必修(是/否)
+// 文本粘贴导入（兼容入口）：拆行后走统一的 rows 导入
 function importBooks(text) {
   const lines = String(text).split('\n').map((s) => s.trim()).filter(Boolean);
+  const rows = lines.map((line) => line.split(/\t|\|/).map((s) => s.trim()));
+  return importBooksFromRows(rows);
+}
+
+// Excel 导入（主入口）：rows 为二维数组，自动跳过含「书名」的表头行
+function importBooksFromRows(rows) {
   const added = [];
   const books = getBooks();
-  lines.forEach((line) => {
-    const cols = line.split(/\t|\|/).map((s) => s.trim());
-    // 识别 ISBN 列（10~13 位数字或连字符组合）
-    const hasIsbn = /^\d{9,13}[-\d]*$/.test(cols[1] || '');
+  rows.forEach((cols) => {
+    cols = (cols || []).map((s) => String(s === undefined || s === null ? '' : s).trim());
+    // 跳过表头：首列含「书名」字样
+    if (!cols[0] || cols[0].indexOf('书名') >= 0) return;
+    // 识别 ISBN 列：列数 ≥10（按含 ISBN 的模板对齐，即使该列为空）或第 2 列形如 ISBN
+    const hasIsbn = cols.length >= 10 || /^\d{9,13}[-\d]*$/.test(cols[1] || '');
     const isbn = hasIsbn ? cols[1] : '';
     const c = hasIsbn ? [cols[0]].concat(cols.slice(2)) : cols;
     if (c.length < 7) return;
@@ -200,19 +205,27 @@ function deleteStudent(id) {
   set(KEY.USERS, getUsers().filter((u) => !(u.id === id && u.role === 'student')));
 }
 
+// 文本粘贴导入（兼容入口）
 function importStudents(text) {
   const lines = String(text).split('\n').map((s) => s.trim()).filter(Boolean);
+  const rows = lines.map((line) => line.split(/\t|\|/).map((s) => s.trim()));
+  return importStudentsFromRows(rows);
+}
+
+// Excel 导入（主入口）：rows 为二维数组，自动跳过含「学号」的表头行
+function importStudentsFromRows(rows) {
   const ok = [];
   const skipped = [];
   const existingIds = {};
   getUsers().forEach((u) => { existingIds[u.id] = true; });
-  lines.forEach((line) => {
-    const cols = line.split(/\t|\|/).map((s) => s.trim());
-    if (cols.length < 5) { skipped.push(line); return; }
+  rows.forEach((cols) => {
+    cols = (cols || []).map((s) => String(s === undefined || s === null ? '' : s).trim());
+    // 跳过表头：首列含「学号」字样
+    if (!cols[0] || cols[0].indexOf('学号') >= 0) return;
     const [id, name, collegeName, majorName, className] = cols;
-    if (!id || !name || !collegeName || !majorName || !className) { skipped.push(line); return; }
+    if (!id || !name || !collegeName || !majorName || !className) { skipped.push(cols.join(' ')); return; }
     // 先查重再建链，避免跳过行留下垃圾组织数据
-    if (existingIds[id]) { skipped.push(line + '（学号已存在）'); return; }
+    if (existingIds[id]) { skipped.push(id + ' ' + name + '（学号已存在）'); return; }
     existingIds[id] = true;
     // 班级全称解析：2024级1班 → 年级 2024 + 班号 1班
     const m = className.match(/^(\d{4})级(.+)$/);
@@ -224,7 +237,7 @@ function importStudents(text) {
     if (addStudent(id, name, classId)) {
       ok.push({ id, name });
     } else {
-      skipped.push(line + '（学号已存在）');
+      skipped.push(id + ' ' + name + '（学号已存在）');
     }
   });
   return { added: ok, skipped };
@@ -401,12 +414,14 @@ module.exports = {
   addBook,
   deleteBook,
   importBooks,
+  importBooksFromRows,
   findOrCreateCollege,
   findOrCreateMajor,
   findOrCreateClass,
   addStudent,
   deleteStudent,
   importStudents,
+  importStudentsFromRows,
   getStudents,
   getOrders,
   getOrder,

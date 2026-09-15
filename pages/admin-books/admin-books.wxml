@@ -68,22 +68,39 @@
   <!-- 批量导入弹层 -->
   <view class="mask" wx:if="{{showImport}}" bindtap="closeImport">
     <view class="sheet" catchtap="">
-      <view class="h2 sheet-title">批量导入（Excel 粘贴）</view>
-      <view class="text-weak import-tip">
-        在 Excel 中选中数据列复制后粘贴到下方。每行一本教材，字段用 Tab 或 | 分隔（兼容两种格式）：
-        书名 | ISBN | 版次 | 作者 | 出版社 | 单价 | 课程名 | 选用教师 | 适用班级ID(逗号分隔) | 必修(是/否)
-        或不带 ISBN：书名 | 版次 | 作者 | 出版社 | 单价 | 课程名 | 选用教师 | 适用班级ID | 必修
-      </view>
-      <textarea
-        class="import-area"
-        placeholder="高等数学（上册）|第七版|同济大学数学系|高等教育出版社|45|高等数学|张伟|CST2401,CST2402|是"
-        value="{{importText}}"
-        bindinput="onImportInput"
-        maxlength="-1"
-      ></textarea>
-      <view class="sheet-btn-row">
-        <button class="btn-ghost half-btn" bindtap="fillDemo">填入示例</button>
-        <button class="btn-primary half-btn" bindtap="doImport">解析并导入</button>
+      <view class="h2 sheet-title">批量导入教材</view>
+
+      <block wx:if="{{!pasteMode}}">
+        <view class="text-weak import-tip">
+          推荐：在电脑 Excel 中按模板整理书目（书名、ISBN、版次、作者、出版社、单价、课程名、选用教师、适用班级ID、必修 十列），把文件通过微信「文件传输助手」发给自己，再点击下方按钮从会话中选取。班级ID见页面底部说明。
+        </view>
+        <button class="btn-primary sheet-btn" hover-class="button-hover" bindtap="chooseExcel" loading="{{parsing}}">选择 Excel 文件导入</button>
+        <button class="btn-ghost sheet-btn-tight" hover-class="button-hover" bindtap="downloadTemplate">下载导入模板（xlsx）</button>
+        <view class="paste-switch" bindtap="togglePaste">没有文件？改用粘贴导入 ›</view>
+      </block>
+
+      <block wx:else>
+        <view class="text-weak import-tip">
+          每行一本教材，字段用 Tab 或 | 分隔（兼容两种格式）：
+          书名 | ISBN | 版次 | 作者 | 出版社 | 单价 | 课程名 | 选用教师 | 适用班级ID(逗号分隔) | 必修(是/否)
+          或不带 ISBN：书名 | 版次 | 作者 | 出版社 | 单价 | 课程名 | 选用教师 | 适用班级ID | 必修
+        </view>
+        <textarea
+          class="import-area"
+          placeholder="高等数学（上册）|第七版|同济大学数学系|高等教育出版社|45|高等数学|张伟|CST2401,CST2402|是"
+          value="{{importText}}"
+          bindinput="onImportInput"
+          maxlength="-1"
+        ></textarea>
+        <view class="sheet-btn-row">
+          <button class="btn-ghost half-btn" bindtap="fillDemo">填入示例</button>
+          <button class="btn-primary half-btn" bindtap="doImport">解析并导入</button>
+        </view>
+        <view class="paste-switch" bindtap="togglePaste">‹ 返回文件导入</view>
+      </block>
+
+      <view class="import-result" wx:if="{{importResult}}">
+        <text class="ok">成功导入 {{importResult.length}} 本</text>
       </view>
       <view class="text-weak import-classes">可用班级ID：CST2401 计算机2401班 · CST2402 计算机2402班 · SE2401 软工2401班 · EN2401 英语2401班 · BM2401 工商2401班</view>
     </view>

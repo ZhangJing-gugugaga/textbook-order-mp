@@ -68,8 +68,15 @@ Page({
     if (!b) return;
     if (b.checked && b.qty === 0) {
       this.updateBook(id, { checked: false, qty: 0 });
+    } else if (!b.checked) {
+      this.updateBook(id, { checked: true, qty: 1 });
+      // 一人一本原则：勾选第 2 种教材时温和提醒（不阻断）
+      const kinds = this.data.books.filter((x) => x.checked && x.qty > 0).length;
+      if (kinds >= 2) {
+        wx.showToast({ title: '原则上每人只征订一本教材', icon: 'none', duration: 2000 });
+      }
     } else {
-      this.updateBook(id, { checked: !b.checked, qty: b.checked ? 0 : 1 });
+      this.updateBook(id, { checked: false, qty: 0 });
     }
   },
 
@@ -111,11 +118,28 @@ Page({
       wx.showToast({ title: '该任务已截止，无法提交', icon: 'none' });
       return;
     }
-    const session = store.getSession();
-    const items = picked.map((b) => ({ bookId: b.id, qty: b.qty }));
-    store.saveSubmission(this.orderId, session.id, items);
-    const sub = store.getSubmission(this.orderId, session.id);
-    this.setData({ submittedAt: sub.submittedAt });
-    wx.showToast({ title: '提交成功', icon: 'success' });
+    // 一人一本原则：多本时不阻断，但明确提醒确认
+    const doSave = () => {
+      const session = store.getSession();
+      const items = picked.map((b) => ({ bookId: b.id, qty: b.qty }));
+      store.saveSubmission(this.orderId, session.id, items);
+      const sub = store.getSubmission(this.orderId, session.id);
+      this.setData({ submittedAt: sub.submittedAt });
+      wx.showToast({ title: '提交成功', icon: 'success' });
+      // 提交完成返回主页查看任务状态
+      setTimeout(() => wx.switchTab({ url: '/pages/home/home' }), 800);
+    };
+    if (picked.length > 1) {
+      wx.showModal({
+        title: '征订确认',
+        content: '您本次勾选了 ' + picked.length + ' 种教材。原则上建议每人只征订一本，是否确认提交？',
+        confirmText: '确认提交',
+        success: (res) => {
+          if (res.confirm) doSave();
+        }
+      });
+      return;
+    }
+    doSave();
   }
 });

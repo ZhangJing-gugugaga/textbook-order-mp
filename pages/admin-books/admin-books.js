@@ -1,8 +1,16 @@
 const store = require('../../utils/store');
+const xlsx = require('../../utils/xlsx-lite.js');
 
 const DEMO_IMPORT =
   '大学英语（综合教程4）|第四版|李荫华|上海外语教育出版社|56|大学英语|刘丽|CST2401,CST2402,SE2401,EN2401,BM2401|是\n' +
   '软件工程导论|第6版|张海藩|清华大学出版社|49.5|软件工程|王建国|SE2401|是';
+
+// 教材导入模板（表头 + 示例行）
+const TEMPLATE_ROWS = [
+  ['书名', 'ISBN', '版次', '作者', '出版社', '单价', '课程名', '选用教师', '适用班级ID', '必修'],
+  ['高等数学（上册）', '9787040396614', '第七版', '同济大学数学系', '高等教育出版社', 45, '高等数学', '张伟', 'CST2401,CST2402', '是'],
+  ['数据结构（C语言版）', '9787302214048', '第2版', '严蔚敏', '清华大学出版社', 39, '数据结构', '李强', 'CST2401', '是']
+];
 
 Page({
   data: {
@@ -10,7 +18,10 @@ Page({
     books: [],
     showAdd: false,
     showImport: false,
+    pasteMode: false,
+    parsing: false,
     importText: '',
+    importResult: null,
     form: { title: '', edition: '', author: '', press: '', price: '', course: '', teacher: '', required: true, classIds: [] },
     allClasses: []
   },
@@ -22,10 +33,10 @@ Page({
       setTimeout(() => wx.navigateBack(), 800);
       return;
     }
-    // 班级下拉数据（带标签）
+    // 班级下拉数据（className 已组合「专业+年级+班号」）
     const classes = store.getClasses().map((c) => {
       const info = store.getClassFull(c.id);
-      return { id: c.id, label: info.majorName + info.className };
+      return { id: c.id, label: info.className };
     });
     this.setData({ allClasses: classes });
     this.loadBooks();
@@ -99,10 +110,62 @@ Page({
   },
 
   // ---------- 批量导入 ----------
-  openImport() { this.setData({ showImport: true }); },
+  openImport() { this.setData({ showImport: true, pasteMode: false, importResult: null }); },
   closeImport() { this.setData({ showImport: false }); },
+  togglePaste() { this.setData({ pasteMode: !this.data.pasteMode }); },
   onImportInput(e) { this.setData({ importText: e.detail.value }); },
   fillDemo() { this.setData({ importText: DEMO_IMPORT }); },
+
+  // Excel 文件导入（主入口）
+  chooseExcel() {
+    wx.chooseMessageFile({
+      count: 1,
+      type: 'file',
+      extension: ['xlsx'],
+      success: (res) => {
+        const file = res.tempFiles && res.tempFiles[0];
+        if (!file) return;
+        this.setData({ parsing: true });
+        try {
+          const fs = wx.getFileSystemManager();
+          const buf = fs.readFileSync(file.path);
+          const wb = xlsx.readWorkbook(buf);
+          const added = store.importBooksFromRows(wb.rows);
+          this.setData({ parsing: false, importResult: added });
+          this.loadBooks();
+          if (added.length > 0) {
+            wx.showToast({ title: '成功导入 ' + added.length + ' 本', icon: 'success' });
+          } else {
+            wx.showToast({ title: '未解析到有效数据', icon: 'none', duration: 2500 });
+          }
+        } catch (e) {
+          this.setData({ parsing: false });
+          wx.showToast({ title: '解析失败：' + e.message, icon: 'none', duration: 3000 });
+        }
+      }
+    });
+  },
+
+  // 生成并打开教材导入模板
+  downloadTemplate() {
+    try {
+      const buf = xlsx.makeWorkbook(TEMPLATE_ROWS, '教材导入模板');
+      const path = wx.env.USER_DATA_PATH + '/book-template.xlsx';
+      const fs = wx.getFileSystemManager();
+      fs.writeFileSync(path, buf, 'binary');
+      wx.openDocument({
+        filePath: path,
+        fileType: 'xlsx',
+        showMenu: true,
+        fail() {
+          wx.showToast({ title: '模板已生成：' + path, icon: 'none', duration: 3000 });
+        }
+      });
+      wx.showToast({ title: '模板已生成，可转发到电脑', icon: 'none', duration: 2500 });
+    } catch (e) {
+      wx.showToast({ title: '生成失败：' + e.message, icon: 'none' });
+    }
+  },
 
   doImport() {
     const text = this.data.importText.trim();

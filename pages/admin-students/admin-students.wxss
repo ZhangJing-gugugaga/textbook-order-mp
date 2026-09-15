@@ -82,6 +82,14 @@
 }
 .chip-on { background: #EEF2FF; color: #4F46E5; border-color: #4F46E5; font-weight: 500; }
 .sheet-btn { margin-top: 28rpx; }
+.sheet-btn-tight { margin-top: 20rpx; }
+.paste-switch {
+  margin-top: 24rpx;
+  text-align: center;
+  color: #4F46E5;
+  font-size: 24rpx;
+  padding: 8rpx 0;
+}
 .sheet-btn-row { display: flex; gap: 20rpx; margin-top: 24rpx; }
 .half-btn { flex: 1; }
 
