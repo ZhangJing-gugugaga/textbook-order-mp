@@ -43,9 +43,10 @@
   border-color: #4F46E5;
   box-shadow: 0 4rpx 10rpx rgba(79, 70, 229, 0.3);
 }
-.book-main { flex: 1; }
-.book-title-row { display: flex; align-items: center; }
-.book-title { font-size: 30rpx; font-weight: 600; margin-right: 12rpx; }
+.book-main { flex: 1; min-width: 0; }
+.book-title-row { display: flex; align-items: center; gap: 12rpx; }
+.book-title { flex: 1; min-width: 0; font-size: 30rpx; font-weight: 600; word-break: break-all; }
+.book-title-row .tag { flex-shrink: 0; }
 .book-meta { margin-top: 6rpx; }
 .book-right { text-align: right; margin-left: 16rpx; }
 .book-price {

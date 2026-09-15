@@ -8,6 +8,7 @@
 .msg-card { margin-top: 16rpx; }
 .msg-head { display: flex; align-items: center; }
 .msg-icon { font-size: 40rpx; margin-right: 16rpx; }
-.msg-title { flex: 1; font-size: 30rpx; font-weight: 500; }
+.msg-title { flex: 1; min-width: 0; font-size: 30rpx; font-weight: 500; word-break: break-all; }
+.msg-time { flex-shrink: 0; }
 .msg-time { flex-shrink: 0; }
 .msg-content { margin-top: 12rpx; line-height: 1.7; }

@@ -52,7 +52,8 @@
 /* ===== 提交记录 ===== */
 .sub-card { margin-top: 16rpx; }
 .sub-head { display: flex; align-items: center; margin-bottom: 8rpx; }
-.sub-head .h2 { flex: 1; margin-right: 12rpx; font-size: 30rpx; }
+.sub-head .h2 { flex: 1; min-width: 0; margin-right: 12rpx; font-size: 30rpx; word-break: break-all; }
+.sub-head .tag { flex-shrink: 0; }
 .sub-books { margin: 16rpx 0; }
 .sub-book {
   display: flex;

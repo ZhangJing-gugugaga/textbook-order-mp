@@ -72,9 +72,15 @@
 .order-accent { width: 8rpx; flex-shrink: 0; }
 .order-accent.open { background: linear-gradient(180deg, #4F46E5, #818CF8); }
 .order-accent.closed { background: linear-gradient(180deg, #F59E0B, #FBBF24); }
-.order-body { flex: 1; padding: 30rpx 30rpx 30rpx 26rpx; }
-.order-head { display: flex; align-items: flex-start; }
-.order-title { flex: 1; margin-right: 16rpx; line-height: 1.4; }
+.order-body { flex: 1; padding: 30rpx 30rpx 30rpx 26rpx; min-width: 0; }
+.order-head { display: flex; align-items: flex-start; gap: 12rpx; }
+.order-title {
+  flex: 1;
+  min-width: 0;
+  line-height: 1.4;
+  word-break: break-all;
+}
+.order-head .tag { flex-shrink: 0; }
 .order-meta { margin: 12rpx 0 20rpx; }
 .meta-item {
   display: inline-block;

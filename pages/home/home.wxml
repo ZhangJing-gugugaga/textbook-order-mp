@@ -97,7 +97,7 @@
           <view class="progress-track">
             <view class="progress-fill" style="width: {{o.rate}}%"></view>
           </view>
-          <view class="text-weak progress-text">{{o.submitted}}/{{o.total}} 人已提交 · {{o.rate}}%</view>
+          <view class="text-weak progress-text">{{o.submittedCount}}/{{o.total}} 人已提交 · {{o.rate}}%</view>
         </view>
         <view class="order-btn-row">
           <button class="btn-ghost order-btn half" hover-class="button-hover" bindtap="goStatsOne" data-id="{{o.id}}">查看统计</button>
