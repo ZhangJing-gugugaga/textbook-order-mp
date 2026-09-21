@@ -1,6 +1,7 @@
 const auth = require('../../utils/auth');
 const api = require('../../utils/api');
 const config = require('../../utils/config');
+const format = require('../../utils/format');
 
 const app = getApp();
 
@@ -35,6 +36,14 @@ Page({
 
     version: '1.0.0',
     envText: '',
+
+    // 通知区（§5.5）：未确认队列 + 全量历史（依赖 /api/notice/mine，未补则降级）
+    noticesLoaded: false,
+    unconfirmed: [],
+    history: [],
+    historyDegraded: false,
+    historyError: '',
+    noticeTab: 'unconfirmed',
   },
 
   onLoad() {
@@ -44,6 +53,8 @@ Page({
         return;
       }
       this.applyMe(result.me);
+      // 首次进入：onShow 早于会话就绪会直接返回，这里补一次通知加载
+      this.loadNotices();
     });
     // N5：静默 refresh 可能重置 currentRole，此处跟随服务端结果刷新
     auth.onRoleChanged(() => {
@@ -59,6 +70,81 @@ Page({
       (me) => this.applyMe(me),
       () => {},
     );
+    this.loadNotices();
+  },
+
+  /* ---------------- 通知区（§5.5） ---------------- */
+  loadNotices() {
+    return Promise.all([
+      api.notice.unconfirmed().then((l) => (Array.isArray(l) ? l : []), () => []),
+      api.notice
+        .mine(1, 20)
+        .then(
+          (page) => ({ ok: true, list: (page && page.list) || [] }),
+          (err) => ({ ok: false, error: err.message || '历史通知暂不可用' }),
+        ),
+    ]).then((res) => {
+      const unconfirmed = (res[0] || []).map((n) => ({
+        taskId: n.taskId,
+        title: n.title,
+        content: n.content,
+        source: n.source,
+        roundStopped: !!n.roundStopped,
+        timeText: n.createdAt ? format.formatDateTime(n.createdAt) : '',
+      }));
+      const mine = res[1] || { ok: false };
+      const history = mine.ok
+        ? mine.list.map((n) => ({
+            taskId: n.taskId,
+            title: n.title,
+            content: n.content,
+            status: n.status,
+            confirmed: !!n.confirmedAt,
+            confirmedText: n.confirmedAt ? format.formatDateTime(n.confirmedAt) : '待确认',
+            timeText: n.createdAt ? format.formatDateTime(n.createdAt) : '',
+          }))
+        : [];
+      this.setData({
+        noticesLoaded: true,
+        unconfirmed: unconfirmed,
+        history: history,
+        historyDegraded: !mine.ok,
+        // 历史通知端点未上线时给友好文案，不把服务端原始错误直接暴露给用户
+        historyError: mine.ok ? '' : '历史通知暂不可用',
+      });
+    });
+  },
+
+  switchNoticeTab(e) {
+    this.setData({ noticeTab: e.currentTarget.dataset.tab });
+  },
+
+  /** 未确认通知在本页确认（与弹窗同一接口，幂等） */
+  onConfirmNotice(e) {
+    const taskId = e.currentTarget.dataset.id;
+    if (!taskId) return;
+    api.notice.confirm(taskId, null).then(
+      () => {
+        wx.showToast({ title: '已确认', icon: 'success' });
+        this.loadNotices();
+        // 同步阻塞弹窗队列
+        const popup = this.selectComponent('#noticePopup');
+        if (popup && popup.refresh) popup.refresh();
+      },
+      (err) => {
+        if (err.code === 'NOT_FOUND' || err.code === 'STATE_CONFLICT') {
+          wx.showToast({ title: '通知任务已关闭，无需确认', icon: 'none' });
+          this.loadNotices();
+          return;
+        }
+        wx.showToast({ title: err.message || '确认失败', icon: 'none' });
+      },
+    );
+  },
+
+  /** 阻塞弹窗队列确认完 → 刷新本页通知区 */
+  onNoticeCleared() {
+    this.loadNotices();
   },
 
   applyMe(me) {

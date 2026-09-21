@@ -15,6 +15,11 @@ module.exports = {
   POPUP_QUEUE_MAX: 5, // notice.popup_queue_max 默认值：弹窗队列保留最新 5 条
   STUDENT_QTY_MAX: 9, // 学生数量步进上限（服务端为 min(9, 班级人数)）
 
+  // 订阅消息模板 id（D7）。
+  // 留空 = 未申请 / 个人主体类目不可报 → 按 §11 降级为「纯弹窗 + unauthorized 线下兜底」，
+  // 弹窗仍正常阻塞与确认，只是不在「收到」回调里请求订阅授权。
+  SUBSCRIBE_TEMPLATE_ID: '',
+
   // 学生数量不做上限预校验（接口不返回班级人数，§5.3 / MP4），仅按 1–9 步进
   TEACHER_QTY_MIN: 1, // 教师明细仅校验 ≥1（上限 = 班级人数，回退 999，§5.4.2 / N7）
 

@@ -291,4 +291,7 @@ Page({
   goProfile() {
     wx.switchTab({ url: '/pages/profile/profile' });
   },
+
+  /** 阻塞弹窗队列确认完（可在此刷新页面数据） */
+  onNoticeCleared() {},
 });

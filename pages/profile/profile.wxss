@@ -87,6 +87,85 @@
   line-height: 1.6;
 }
 
+/* ===== 通知区 ===== */
+.notice-card { padding: 0 32rpx 8rpx; }
+.notice-tabs {
+  display: flex;
+  border-bottom: 1rpx solid #F1F5F9;
+}
+.notice-tab {
+  flex: 1;
+  text-align: center;
+  padding: 26rpx 0;
+  font-size: 27rpx;
+  color: #94A3B8;
+  position: relative;
+}
+.notice-tab.active {
+  color: #4F46E5;
+  font-weight: 700;
+}
+.notice-tab.active::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 0;
+  width: 56rpx;
+  height: 6rpx;
+  border-radius: 3rpx;
+  background: linear-gradient(90deg, #4F46E5, #818CF8);
+}
+.notice-row {
+  padding: 24rpx 0;
+  border-bottom: 1rpx solid #F1F5F9;
+}
+.notice-row:last-child { border-bottom: none; }
+.notice-row-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 12rpx;
+}
+.notice-row-head .tag { flex-shrink: 0; }
+.notice-row-title {
+  flex: 1;
+  min-width: 0;
+  font-size: 29rpx;
+  font-weight: 600;
+  color: #1E1B4B;
+  line-height: 1.5;
+  word-break: break-all;
+}
+.notice-row-content {
+  margin-top: 10rpx;
+  font-size: 25rpx;
+  color: #475569;
+  line-height: 1.7;
+  word-break: break-all;
+}
+.notice-row-time {
+  display: block;
+  margin-top: 10rpx;
+  font-size: 22rpx;
+  color: #94A3B8;
+}
+.notice-row-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 6rpx;
+}
+.notice-row-foot .notice-row-time { margin-top: 0; }
+.notice-confirm {
+  font-size: 25rpx;
+  font-weight: 600;
+  color: #4F46E5;
+  border: 2rpx solid #C7D2FE;
+  border-radius: 999rpx;
+  padding: 8rpx 28rpx;
+}
+.notice-confirm:active { background: #EEF2FF; }
+
 /* ===== 切换身份 ===== */
 .role-card { padding: 8rpx 32rpx 24rpx; }
 .role-item {

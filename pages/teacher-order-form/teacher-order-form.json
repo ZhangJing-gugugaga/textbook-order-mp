@@ -3,6 +3,7 @@
   "enablePullDownRefresh": false,
   "usingComponents": {
     "window-status": "/components/window-status/index",
-    "confirm-modal": "/components/confirm-modal/index"
+    "confirm-modal": "/components/confirm-modal/index",
+    "notice-popup": "/components/notice-popup/index"
   }
 }

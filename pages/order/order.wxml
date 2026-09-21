@@ -126,4 +126,7 @@
       <view class="confirm-warn" wx:if="{{totalKinds > 1}}">原则上每人只征订一本教材，请确认是否提交多种。</view>
     </block>
   </confirm-modal>
+
+  <!-- 阻塞弹窗通知（未确认队列，确认完放行） -->
+  <notice-popup id="noticePopup" bind:cleared="onNoticeCleared" />
 </view>

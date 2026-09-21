@@ -32,6 +32,71 @@
     <view class="bind-note">订阅消息仅对已绑定微信的学生发送；未绑定时以应用内弹窗提醒为准。</view>
   </view>
 
+  <!-- ===== 通知（§5.5：未确认队列 + 全量历史） ===== -->
+  <view class="section-title">通知</view>
+  <view class="card notice-card">
+    <view class="notice-tabs">
+      <view
+        class="notice-tab {{noticeTab === 'unconfirmed' ? 'active' : ''}}"
+        data-tab="unconfirmed"
+        bindtap="switchNoticeTab"
+      >
+        待确认{{unconfirmed.length ? '（' + unconfirmed.length + '）' : ''}}
+      </view>
+      <view
+        class="notice-tab {{noticeTab === 'history' ? 'active' : ''}}"
+        data-tab="history"
+        bindtap="switchNoticeTab"
+      >
+        全部通知
+      </view>
+    </view>
+
+    <block wx:if="{{noticeTab === 'unconfirmed'}}">
+      <block wx:if="{{unconfirmed.length}}">
+        <view class="notice-row" wx:for="{{unconfirmed}}" wx:key="taskId" wx:for-item="n">
+          <view class="notice-row-head">
+            <view class="notice-row-title">{{n.title}}</view>
+            <view class="tag tag-warning" wx:if="{{n.roundStopped}}">已停止重发</view>
+          </view>
+          <view class="notice-row-content">{{n.content}}</view>
+          <view class="notice-row-foot">
+            <text class="notice-row-time">{{n.timeText}}</text>
+            <view class="notice-confirm" data-id="{{n.taskId}}" catchtap="onConfirmNotice">收到</view>
+          </view>
+        </view>
+      </block>
+      <view class="empty" wx:else>
+        <view class="empty-icon">✅</view>
+        <view>没有待确认的通知</view>
+      </view>
+    </block>
+
+    <block wx:else>
+      <block wx:if="{{history.length}}">
+        <view class="notice-row" wx:for="{{history}}" wx:key="taskId" wx:for-item="n">
+          <view class="notice-row-head">
+            <view class="notice-row-title">{{n.title}}</view>
+            <view class="tag {{n.confirmed ? 'tag-success' : 'tag-warning'}}">
+              {{n.confirmed ? '已确认' : '待确认'}}
+            </view>
+          </view>
+          <view class="notice-row-content">{{n.content}}</view>
+          <view class="notice-row-time">{{n.timeText}} · {{n.confirmedText}}</view>
+        </view>
+      </block>
+      <view class="empty" wx:elif="{{historyDegraded}}">
+        <view class="empty-icon">🕓</view>
+        <view>{{historyError}}</view>
+        <view class="text-weak empty-sub">当前仅展示「待确认」队列，历史通知待后端补端点后开放</view>
+      </view>
+      <view class="empty" wx:else>
+        <view class="empty-icon">📭</view>
+        <view>暂无通知记录</view>
+      </view>
+    </block>
+  </view>
+
   <!-- ===== 多角色：切换身份 ===== -->
   <block wx:if="{{canSwitch}}">
     <view class="section-title">切换身份</view>
@@ -98,4 +163,7 @@
       </view>
     </view>
   </view>
+
+  <!-- 阻塞弹窗通知（未确认队列，确认完放行） -->
+  <notice-popup id="noticePopup" bind:cleared="onNoticeCleared" />
 </view>

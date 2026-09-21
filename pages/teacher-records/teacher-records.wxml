@@ -84,4 +84,7 @@
 
     <view class="no-export">教师端不提供导出，如需导出请联系教材室</view>
   </block>
+
+  <!-- 阻塞弹窗通知（未确认队列，确认完放行） -->
+  <notice-popup id="noticePopup" bind:cleared="onNoticeCleared" />
 </view>

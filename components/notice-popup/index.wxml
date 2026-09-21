@@ -1,0 +1,33 @@
+<view class="notice-mask" wx:if="{{show}}" catchtap="noop">
+  <view class="notice-modal" catchtap="noop">
+    <view class="notice-head">
+      <view class="notice-badge">📢</view>
+      <view class="notice-headtext">
+        <view class="notice-title">征订通知</view>
+        <view class="notice-progress">{{progressText}}</view>
+      </view>
+    </view>
+
+    <view class="notice-body">
+      <view class="notice-item-title">{{current.title}}</view>
+      <view class="notice-time" wx:if="{{createdAtText}}">{{createdAtText}}</view>
+      <scroll-view class="notice-content-wrap" scroll-y>
+        <view class="notice-content">{{current.content}}</view>
+      </scroll-view>
+      <view class="notice-round" wx:if="{{roundStopped}}">该通知已停止重复推送，仍需确认</view>
+    </view>
+
+    <view class="notice-tip" wx:if="{{subscribeTip}}">{{subscribeTip}}</view>
+    <view class="notice-err" wx:if="{{error}}">{{error}}</view>
+
+    <button
+      class="btn-primary notice-btn"
+      hover-class="button-hover"
+      bindtap="onReceive"
+      loading="{{confirming}}"
+    >
+      收 到
+    </button>
+    <view class="notice-foot">确认后方可继续使用小程序</view>
+  </view>
+</view>

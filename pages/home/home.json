@@ -2,6 +2,7 @@
   "navigationBarTitleText": "教材征订",
   "enablePullDownRefresh": true,
   "usingComponents": {
-    "window-status": "/components/window-status/index"
+    "window-status": "/components/window-status/index",
+    "notice-popup": "/components/notice-popup/index"
   }
 }
