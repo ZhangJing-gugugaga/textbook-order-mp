@@ -41,3 +41,6 @@ desktop.ini
 
 # ===== Playwright CLI 本地快照 =====
 .playwright-cli/
+
+# ===== 本地 agent 工作目录（含本机路径与会话记录） =====
+.claude/
