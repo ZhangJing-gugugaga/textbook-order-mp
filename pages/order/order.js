@@ -61,7 +61,10 @@ Page({
     return Promise.all([
       api.student.bookList().then((list) => list || [], () => null),
       api.student.order().then((order) => order, () => null),
-    ]).then(([books, order]) => {
+    ]).then((res) => {
+      // 注意：不使用数组解构 —— 原生小程序无 npm 构建，@babel/runtime helper 不可用
+      const books = res[0];
+      const order = res[1];
       if (books === null) {
         this.setData({ loaded: true, error: '教材清单加载失败，请下拉刷新重试' });
         return;

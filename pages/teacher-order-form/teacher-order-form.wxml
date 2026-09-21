@@ -1,0 +1,226 @@
+<view class="page">
+  <!-- 窗口三态 -->
+  <window-status id="windowStatus" compact bind:change="onWindowChange" />
+
+  <view class="card state-card" wx:if="{{!loaded}}">
+    <view class="state-loading">
+      <view class="spin"></view>
+      <text class="text-sub">正在加载填报数据…</text>
+    </view>
+  </view>
+
+  <block wx:else>
+    <!-- 状态卡 -->
+    <view class="card status-card">
+      <view class="status-head">
+        <view class="status-label">填报状态</view>
+        <view class="tag {{statusTone}}">{{statusLabel}}</view>
+      </view>
+      <view class="status-time" wx:if="{{submittedAtText}}">提交于 {{submittedAtText}}</view>
+      <view class="status-time" wx:if="{{reviewAtText}}">审核于 {{reviewAtText}}</view>
+      <view class="status-lock" wx:if="{{lockHint}}">{{lockHint}}</view>
+
+      <!-- 补正入口（X8）：驳回理由醒目 + correctDeadline 倒计时 -->
+      <block wx:if="{{needCorrection}}">
+        <view class="reject-box">
+          <view class="reject-title">需补正后重新提交</view>
+          <view class="reject-note" wx:if="{{reviewNote}}">驳回理由：{{reviewNote}}</view>
+          <view class="reject-note" wx:else>请按下方提示修复问题后重新提交</view>
+          <view class="reject-deadline" wx:if="{{correctDeadlineText}}">{{correctDeadlineText}}</view>
+        </view>
+      </block>
+    </view>
+
+    <!-- 字段审查汇总（FIELD_CHECK_FAILED） -->
+    <view class="card field-summary" wx:if="{{fieldErrorSummary}}">
+      <view class="fs-title">⚠️ {{fieldErrorSummary}}</view>
+      <view class="fs-item" wx:for="{{fieldErrors}}" wx:key="index">
+        <view class="tag tag-required">{{item.ruleLabel}}</view>
+        <view class="fs-msg">{{item.message}}</view>
+      </view>
+    </view>
+
+    <!-- 明细行编辑器 -->
+    <view class="section-title">
+      填报明细（{{itemCount}} 行 / 共 {{totalQuantity}} 册）
+      <text class="closed-hint" wx:if="{{readonly}}"> · 只读</text>
+    </view>
+
+    <view class="card row-card {{row.errors.length ? 'row-error' : ''}}" wx:for="{{items}}" wx:key="key" wx:for-item="row">
+      <view class="row-head">
+        <view class="row-index">第 {{index + 1}} 行</view>
+        <view class="row-del" wx:if="{{!readonly}}" catchtap="removeRow" data-key="{{row.key}}">删除</view>
+      </view>
+
+      <!-- 课程 × 班级 -->
+      <picker
+        mode="selector"
+        range="{{courseOptions}}"
+        range-key="label"
+        value="{{row.courseIndex}}"
+        disabled="{{readonly}}"
+        data-key="{{row.key}}"
+        bindchange="onCourseChange"
+      >
+        <view class="field-row">
+          <view class="field-label">课程 · 班级</view>
+          <view class="field-value {{row.courseLabel ? '' : 'placeholder'}}">
+            {{row.courseLabel || '请选择任课课程'}}
+          </view>
+          <view class="cell-arrow">›</view>
+        </view>
+      </picker>
+
+      <!-- 教材（选择器：检索 + 空态） -->
+      <view class="field-row field-book" data-key="{{row.key}}" bindtap="openSelector">
+        <view class="field-label">教材</view>
+        <view class="field-value {{row.textbookTitle ? '' : 'placeholder'}}">
+          {{row.textbookTitle || '点击选择教材'}}
+        </view>
+        <view class="cell-arrow">›</view>
+      </view>
+      <view class="row-isbn" wx:if="{{row.isbn}}">ISBN {{row.isbn}}</view>
+
+      <!-- 数量 -->
+      <view class="field-row">
+        <view class="field-label">数量</view>
+        <input
+          class="qty-input"
+          type="number"
+          value="{{row.quantity}}"
+          disabled="{{readonly}}"
+          data-key="{{row.key}}"
+          bindinput="onQtyInput"
+          bindblur="onQtyBlur"
+        />
+        <view class="qty-unit">册</view>
+      </view>
+
+      <!-- 行级字段错误 -->
+      <view class="row-err" wx:for="{{row.errors}}" wx:key="index" wx:for-item="e">
+        <view class="tag tag-required">{{e.rule}}</view>
+        <view class="row-err-msg">{{e.message}}</view>
+      </view>
+    </view>
+
+    <view class="add-row" wx:if="{{!readonly}}" hover-class="add-hover" bindtap="addRow">
+      ＋ 新增明细行
+    </view>
+    <view class="card empty-row-card" wx:if="{{!items.length}}">
+      <view class="empty">
+        <view class="empty-icon">📝</view>
+        <view>本学期还没有填报明细</view>
+        <view class="text-weak empty-sub">点「新增明细行」按 课程 × 班级 × 教材 × 数量 添加</view>
+      </view>
+    </view>
+
+    <view class="card entry-card" hover-class="card-hover" bindtap="goRecords">
+      <view class="entry-main">
+        <view class="entry-title">我的提交记录</view>
+        <view class="entry-sub">历史学期填报与审查状态</view>
+      </view>
+      <view class="cell-arrow">›</view>
+    </view>
+
+    <!-- 底部提交栏 -->
+    <view class="footer">
+      <view class="footer-info">
+        <view class="footer-count">{{itemCount}} 行明细</view>
+        <view class="text-sub">共 {{totalQuantity}} 册</view>
+      </view>
+      <button
+        wx:if="{{!readonly}}"
+        class="btn-primary footer-btn"
+        hover-class="button-hover"
+        bindtap="onSubmit"
+      >
+        {{needCorrection ? '补正重提' : '提交填报'}}
+      </button>
+      <button wx:else class="btn-primary footer-btn footer-btn-disabled" disabled>
+        {{correctionExpired ? '补正已过期' : '已锁定'}}
+      </button>
+    </view>
+    <view class="footer-space"></view>
+  </block>
+
+  <!-- 教材选择器 -->
+  <view class="mask" wx:if="{{selectorShow}}" catchtap="closeSelector">
+    <view class="sheet" catchtap="noop">
+      <view class="sheet-title">选择教材</view>
+      <view class="search-row">
+        <input
+          class="search-input"
+          placeholder="按书名 / ISBN / 作者 / 出版社检索"
+          placeholder-class="ph"
+          value="{{selectorKeyword}}"
+          bindinput="onSelectorKeyword"
+          bindconfirm="onSelectorSearch"
+          confirm-type="search"
+        />
+        <view class="search-btn" hover-class="search-hover" catchtap="onSelectorSearch">检索</view>
+      </view>
+
+      <view class="sheet-loading" wx:if="{{selectorLoading}}">
+        <view class="spin"></view>
+        <text class="text-sub">检索中…</text>
+      </view>
+
+      <scroll-view class="sheet-body" scroll-y wx:elif="{{selectorResults.length}}">
+        <view
+          class="book-row"
+          wx:for="{{selectorResults}}"
+          wx:key="textbookId"
+          wx:for-item="b"
+          data-id="{{b.textbookId}}"
+          catchtap="pickTextbook"
+          hover-class="book-hover"
+        >
+          <view class="book-main">
+            <view class="book-title">{{b.title}}</view>
+            <view class="text-weak book-meta">{{b.edition}} · {{b.author}} · {{b.press}}</view>
+            <view class="text-weak book-meta">ISBN {{b.isbn}}</view>
+          </view>
+          <view class="book-price">¥{{b.price}}</view>
+        </view>
+      </scroll-view>
+
+      <view class="empty sheet-empty" wx:else>
+        <view class="empty-icon">🔍</view>
+        <view>{{selectorEmpty ? '没有匹配的教材，换个关键词试试' : '输入关键词后点「检索」'}}</view>
+        <view class="text-weak empty-sub">仅返回在库教材，单次最多 50 条</view>
+      </view>
+
+      <view class="sheet-actions">
+        <view class="sheet-btn" hover-class="sheet-btn-hover" catchtap="closeSelector">关闭</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 提交确认 -->
+  <confirm-modal
+    show="{{confirmShow}}"
+    title="{{needCorrection ? '补正提交确认' : '提交确认'}}"
+    note="提交为整单覆盖：以本次明细替换本学期全部填报内容"
+    confirm-text="{{needCorrection ? '确认补正重提' : '确认提交'}}"
+    loading="{{saving}}"
+    bind:confirm="onConfirmSubmit"
+    bind:cancel="onConfirmCancel"
+  >
+    <view class="confirm-table">
+      <view class="confirm-row head">
+        <view class="col-course">课程 · 班级</view>
+        <view class="col-qty">数量</view>
+      </view>
+      <view class="confirm-row" wx:for="{{items}}" wx:key="key">
+        <view class="col-course">
+          <view class="ct-course">{{item.courseLabel}}</view>
+          <view class="ct-book">{{item.textbookTitle}}</view>
+        </view>
+        <view class="col-qty">{{item.quantity}}</view>
+      </view>
+    </view>
+    <view class="confirm-total">
+      <text>合计 {{itemCount}} 行 / {{totalQuantity}} 册</text>
+    </view>
+  </confirm-modal>
+</view>

@@ -1,0 +1,65 @@
+<view class="page">
+  <view class="card-hero summary" wx:if="{{loaded && !error}}">
+    <view class="sum-title">本学期任课关系</view>
+    <view class="sum-sub">{{classCount}} 个班级 · {{courseCount}} 门课程</view>
+    <view class="sum-tip">点课程可直达填报页对应明细行</view>
+  </view>
+
+  <view class="card state-card" wx:if="{{!loaded}}">
+    <view class="state-loading">
+      <view class="spin"></view>
+      <text class="text-sub">正在加载任课关系…</text>
+    </view>
+  </view>
+
+  <view class="card state-card" wx:elif="{{error}}">
+    <view class="empty">
+      <view class="empty-icon">📡</view>
+      <view>{{error}}</view>
+      <view class="retry" bindtap="onRetry">点击重试</view>
+    </view>
+  </view>
+
+  <block wx:elif="{{groups.length === 0}}">
+    <view class="card state-card">
+      <view class="empty">
+        <view class="empty-icon">🗂️</view>
+        <view>暂无任课关系，请联系教材室导入</view>
+        <view class="text-weak empty-sub">征订范围来自已导入的任课关系数据</view>
+      </view>
+    </view>
+  </block>
+
+  <block wx:else>
+    <view class="class-group" wx:for="{{groups}}" wx:key="classId" wx:for-item="g">
+      <view class="section-title">{{g.className}}</view>
+      <view class="card course-card">
+        <view
+          class="course-item"
+          wx:for="{{g.courses}}"
+          wx:key="courseId"
+          wx:for-item="c"
+          data-course-id="{{c.courseId}}"
+          data-class-id="{{g.classId}}"
+          bindtap="goForm"
+          hover-class="course-hover"
+        >
+          <view class="icon-badge icon-indigo course-badge">📗</view>
+          <view class="course-main">
+            <view class="course-name">{{c.courseName}}</view>
+            <view class="text-weak course-meta">{{g.className}}</view>
+          </view>
+          <view class="cell-arrow">›</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="card entry-card" hover-class="card-hover" bindtap="goRecords">
+      <view class="entry-main">
+        <view class="entry-title">我的提交记录</view>
+        <view class="entry-sub">历史学期填报与审查状态</view>
+      </view>
+      <view class="cell-arrow">›</view>
+    </view>
+  </block>
+</view>

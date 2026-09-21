@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "填报",
+  "enablePullDownRefresh": false,
+  "usingComponents": {
+    "window-status": "/components/window-status/index",
+    "confirm-modal": "/components/confirm-modal/index"
+  }
+}

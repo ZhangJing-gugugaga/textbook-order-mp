@@ -3,7 +3,10 @@
     "pages/login/login",
     "pages/home/home",
     "pages/order/order",
-    "pages/profile/profile"
+    "pages/profile/profile",
+    "pages/teacher-courses/teacher-courses",
+    "pages/teacher-order-form/teacher-order-form",
+    "pages/teacher-records/teacher-records"
   ],
   "window": {
     "backgroundTextStyle": "light",

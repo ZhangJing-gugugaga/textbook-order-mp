@@ -75,6 +75,7 @@ Component({
 
     applyStatus(status) {
       if (!status || !status.windowStatus) {
+        this.serverTime = (status && status.serverTime) || '';
         this.setData({
           loaded: true,
           error: '',
@@ -93,6 +94,7 @@ Component({
       const windowStatus = status.windowStatus;
       const channelOpen = Number(status.channelOpen == null ? 1 : status.channelOpen);
       const canSubmit = windowStatus === 'open' && channelOpen === 1;
+      this.serverTime = status.serverTime || '';
 
       let tone = 'indigo';
       let statusText = '';
@@ -162,6 +164,8 @@ Component({
         channelOpen: this.data.channelOpen,
         canSubmit: this.data.canSubmit,
         semesterName: this.data.semesterName,
+        // 服务端时间锚点：页面可据此对其它绝对时间（如 correctDeadline）做倒计时
+        serverTime: this.serverTime || '',
         status: this.data,
       });
     },

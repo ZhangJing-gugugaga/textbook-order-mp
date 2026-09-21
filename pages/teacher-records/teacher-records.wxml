@@ -1,0 +1,87 @@
+<view class="page">
+  <view class="card state-card" wx:if="{{!loaded}}">
+    <view class="state-loading">
+      <view class="spin"></view>
+      <text class="text-sub">正在加载提交记录…</text>
+    </view>
+  </view>
+
+  <view class="card state-card" wx:elif="{{error}}">
+    <view class="empty">
+      <view class="empty-icon">📡</view>
+      <view>{{error}}</view>
+      <view class="retry" bindtap="onRetry">点击重试</view>
+    </view>
+  </view>
+
+  <block wx:elif="{{records.length === 0}}">
+    <view class="card state-card">
+      <view class="empty">
+        <view class="empty-icon">🗃️</view>
+        <view>还没有填报记录</view>
+        <view class="text-weak empty-sub">完成首次填报后，这里会显示审查状态轨迹</view>
+      </view>
+    </view>
+    <button class="btn-primary go-form" hover-class="button-hover" bindtap="goForm">去填报</button>
+  </block>
+
+  <block wx:else>
+    <view class="card rec-card" wx:for="{{records}}" wx:key="id" wx:for-item="r">
+      <view class="rec-head" data-id="{{r.id}}" bindtap="toggleDetail">
+        <view class="rec-title">{{r.semesterName}}</view>
+        <view class="tag {{r.statusTone}}">{{r.statusLabel}}</view>
+      </view>
+
+      <view class="rec-meta">
+        <view class="meta-item">明细 {{r.itemCount}} 行</view>
+        <view class="meta-item">共 {{r.totalQuantity}} 册</view>
+        <view class="meta-item" wx:if="{{r.submittedAtText}}">{{r.submittedAtText}}</view>
+      </view>
+
+      <view class="rec-note" wx:if="{{r.reviewNote}}">驳回理由：{{r.reviewNote}}</view>
+
+      <!-- 状态轨迹 -->
+      <view class="track">
+        <view class="track-step" wx:for="{{r.track}}" wx:key="index" wx:for-item="s">
+          <view class="track-dot {{s.state}}"></view>
+          <view class="track-main">
+            <view class="track-name">
+              {{s.name}}
+              <text class="track-note {{s.state}}" wx:if="{{s.note}}">· {{s.note}}</text>
+            </view>
+            <view class="track-time" wx:if="{{s.time}}">{{s.time}}</view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 当前学期明细（历史学期仅列表级信息，N11） -->
+      <block wx:if="{{r.expanded}}">
+        <view class="detail-box" wx:if="{{r.semesterId === currentSemesterId}}">
+          <view class="detail-title">明细</view>
+          <view class="detail-loading" wx:if="{{detailLoading}}">
+            <view class="spin"></view>
+            <text class="text-sub">加载中…</text>
+          </view>
+          <block wx:elif="{{detail && detail.items.length}}">
+            <view class="detail-row" wx:for="{{detail.items}}" wx:key="id">
+              <view class="detail-main">
+                <view class="detail-book">{{item.textbookTitle}}</view>
+                <view class="text-weak detail-sub">{{item.className}} · {{item.courseName}}</view>
+                <view class="text-weak detail-sub">ISBN {{item.isbn}}</view>
+              </view>
+              <view class="detail-qty">{{item.quantity}} 册</view>
+            </view>
+          </block>
+          <view class="text-weak detail-empty" wx:else>暂无明细</view>
+        </view>
+        <view class="detail-box" wx:else>
+          <view class="text-weak detail-empty">
+            历史学期仅保留汇总信息（明细需在电脑端 Web 系统查看）
+          </view>
+        </view>
+      </block>
+    </view>
+
+    <view class="no-export">教师端不提供导出，如需导出请联系教材室</view>
+  </block>
+</view>
