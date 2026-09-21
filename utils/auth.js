@@ -106,6 +106,26 @@ function clearSession() {
   refreshPromise = null;
   wx.removeStorageSync(K.auth);
   wx.removeStorageSync(K.me);
+  resetAppSession();
+}
+
+/**
+ * 清会话时同步作废 app 级会话缓存。
+ * 否则 app.globalData.sessionPromise 仍是退出前的 {ok:true}，登录页 onLoad 会据此
+ * 立刻 land() 回业务页 —— 表现为「退出登录后被弹回首页」。
+ */
+function resetAppSession() {
+  try {
+    const app = getApp();
+    if (app && app.globalData) {
+      app.globalData.sessionReady = false;
+      app.globalData.me = null;
+      app.globalData.homeMode = '';
+      app.globalData.sessionPromise = Promise.resolve({ ok: false, reason: 'LOGGED_OUT' });
+    }
+  } catch (e) {
+    /* getApp 在极早期不可用，忽略 */
+  }
 }
 
 /* ------------------------------------------------------------------ *
@@ -143,6 +163,15 @@ function normalizeAuth(auth) {
 const PERM_TEACHER = 'order:form:submit';
 const PERM_STUDENT = 'student:order:submit';
 
+/**
+ * 小程序端不承载的身份（§1.2 角色边界表）：ADMIN / SECRETARY / SUPPLIER 登录后引导至 Web 端。
+ *
+ * 注意：这里必须按「身份码」判定，不能只看权限码 —— ADMIN 的权限是超集（35 条，
+ * 含 order:form:submit 与 student:order:submit），纯权限码判定会把超管放进教师首页。
+ * 师生两种身份之间仍按权限码区分（不写死角色名）。
+ */
+const MP_EXCLUDED_ROLES = ['ADMIN', 'SECRETARY', 'SUPPLIER'];
+
 function hasPerm(me, code) {
   return !!(me && Array.isArray(me.permissions) && me.permissions.indexOf(code) >= 0);
 }
@@ -157,15 +186,15 @@ function isStudent(me) {
 
 /**
  * 落地页模式：'teacher' | 'student' | 'web'
- * 两者都有 → 以 currentRole 为准；都没有 → Web 端引导
+ * 非师生身份（超管/秘书/供货商）→ web；师生两者都有 → 以 currentRole 为准；都没有 → web
  */
 function homeMode(me) {
+  if (!me) return 'web';
+  if (MP_EXCLUDED_ROLES.indexOf(me.currentRole) >= 0) return 'web';
+
   const t = isTeacher(me);
   const s = isStudent(me);
-  if (t && s) {
-    if (me && me.currentRole === 'STUDENT') return 'student';
-    return 'teacher';
-  }
+  if (t && s) return me.currentRole === 'STUDENT' ? 'student' : 'teacher';
   if (t) return 'teacher';
   if (s) return 'student';
   return 'web';
