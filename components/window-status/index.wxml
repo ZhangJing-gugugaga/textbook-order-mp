@@ -1,0 +1,23 @@
+<view class="ws {{compact ? 'ws-compact' : ''}} tone-{{tone}}">
+  <view class="ws-loading" wx:if="{{!loaded}}">
+    <view class="ws-dot"></view>
+    <text class="ws-loading-text">正在获取征订窗口…</text>
+  </view>
+
+  <view class="ws-error" wx:elif="{{error}}" bindtap="onRetry">
+    <text class="ws-error-text">{{error}}</text>
+    <text class="ws-retry">点击重试</text>
+  </view>
+
+  <block wx:else>
+    <view class="ws-head">
+      <view class="ws-dot-icon"></view>
+      <view class="ws-status">{{statusText}}</view>
+    </view>
+    <view class="ws-countdown" wx:if="{{countdownText}}">{{countdownText}}</view>
+    <view class="ws-semester" wx:if="{{semesterName}}">{{semesterName}}</view>
+    <view class="ws-warn" wx:if="{{hasSemester && windowStatus === 'open' && !canSubmit}}">
+      征订通道已关闭，暂不可提交
+    </view>
+  </block>
+</view>

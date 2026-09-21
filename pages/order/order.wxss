@@ -14,6 +14,28 @@
 }
 .head-class { color: #4F46E5; font-weight: 500; }
 
+/* ===== 加载/错误态 ===== */
+.state-card { margin-top: 24rpx; }
+.state-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40rpx 0;
+}
+.spin {
+  width: 32rpx;
+  height: 32rpx;
+  border-radius: 50%;
+  border: 4rpx solid #E0E7FF;
+  border-top-color: #4F46E5;
+  animation: spin 800ms linear infinite;
+  margin-right: 16rpx;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+.empty-sub { margin-top: 12rpx; }
+
 /* ===== 教材条目 ===== */
 .book-item {
   display: flex;
@@ -43,8 +65,12 @@
   border-color: #4F46E5;
   box-shadow: 0 4rpx 10rpx rgba(79, 70, 229, 0.3);
 }
+.check-box.disabled {
+  background: #F1F5F9;
+  border-color: #CBD5E1;
+}
 .book-main { flex: 1; min-width: 0; }
-.book-title-row { display: flex; align-items: center; gap: 12rpx; }
+.book-title-row { display: flex; align-items: center; gap: 10rpx; flex-wrap: wrap; }
 .book-title { flex: 1; min-width: 0; font-size: 30rpx; font-weight: 600; word-break: break-all; }
 .book-title-row .tag { flex-shrink: 0; }
 .book-meta { margin-top: 6rpx; }
@@ -89,7 +115,7 @@
   color: #1E1B4B;
 }
 
-/* ===== 底部结算栏：浮起 ===== */
+/* ===== 底部结算栏 ===== */
 .footer {
   position: fixed;
   left: 0;
@@ -101,6 +127,7 @@
   padding: 24rpx 32rpx calc(24rpx + env(safe-area-inset-bottom));
   box-shadow: 0 -8rpx 32rpx rgba(30, 27, 75, 0.1);
   border-radius: 32rpx 32rpx 0 0;
+  z-index: 10;
 }
 .footer-info { flex: 1; }
 .footer-amount {
@@ -113,12 +140,60 @@
 .footer-btn { width: 300rpx; margin: 0; }
 .footer-space { height: 40rpx; }
 
-/* ===== 截止任务只读态 ===== */
+/* ===== 只读态 ===== */
 .closed-hint { font-size: 24rpx; color: #94A3B8; font-weight: 400; }
-.book-item.readonly { opacity: 0.75; }
+.book-item.readonly { opacity: 0.72; }
 .book-item.readonly .check-box { border-color: #CBD5E1; }
 .footer-btn-disabled {
   background: #CBD5E1 !important;
   color: #FFFFFF;
   box-shadow: none;
 }
+
+/* ===== 确认弹层内容 ===== */
+.confirm-table { font-size: 26rpx; }
+.confirm-row {
+  display: flex;
+  align-items: center;
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid #F1F5F9;
+}
+.confirm-row.head {
+  color: #94A3B8;
+  font-size: 23rpx;
+  border-bottom: 2rpx solid #E0E7FF;
+}
+.confirm-row .col-title { flex: 1; min-width: 0; word-break: break-all; padding-right: 12rpx; }
+.confirm-row .col-qty { width: 90rpx; text-align: center; color: #475569; }
+.confirm-row .col-amount { width: 130rpx; text-align: right; color: #EA580C; font-weight: 600; }
+.confirm-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 20rpx;
+  font-size: 26rpx;
+  color: #475569;
+}
+.confirm-amount {
+  font-size: 34rpx;
+  font-weight: 800;
+  color: #EA580C;
+  font-family: 'DIN Alternate', -apple-system, sans-serif;
+}
+.confirm-warn {
+  margin-top: 18rpx;
+  background: #FFF7ED;
+  color: #EA580C;
+  font-size: 23rpx;
+  line-height: 1.6;
+  padding: 16rpx 20rpx;
+  border-radius: 14rpx;
+}
+.confirm-empty {
+  font-size: 28rpx;
+  color: #475569;
+  line-height: 1.8;
+  text-align: center;
+  padding: 20rpx 0;
+}
+.confirm-empty .strong { font-weight: 700; color: #DC2626; }

@@ -1,48 +1,129 @@
 <view class="page">
-  <!-- 任务信息 -->
-  <view class="order-head card">
-    <view class="h2">{{order.title}}</view>
-    <view class="text-sub head-meta">
-      <text>截止：{{order.deadline}}</text>
-      <text class="head-class">{{classInfo.collegeName}} {{classInfo.className}}</text>
+  <!-- 窗口三态（compact） -->
+  <window-status id="windowStatus" compact bind:change="onWindowChange" />
+
+  <!-- 加载 / 错误 -->
+  <view class="card state-card" wx:if="{{!loaded}}">
+    <view class="state-loading">
+      <view class="spin"></view>
+      <text class="text-sub">正在加载教材清单…</text>
     </view>
-    <view class="tag tag-warning" wx:if="{{submittedAt}}">已提交 · {{submittedAt}}（截止前可修改）</view>
-    <view class="tag tag-blue" wx:else>首次填写</view>
+  </view>
+  <view class="card state-card" wx:elif="{{error}}">
+    <view class="empty">
+      <view class="empty-icon">📡</view>
+      <view>{{error}}</view>
+    </view>
   </view>
 
-  <view class="section-title">本班关联教材（{{books.length}} 种）<text class="closed-hint" wx:if="{{order.status !== 'open'}}"> · 任务已截止，仅供查看</text></view>
-
-  <!-- 教材列表（截止任务：只读态） -->
-  <view class="book-item card {{b.checked ? 'picked' : ''}} {{order.status !== 'open' ? 'readonly' : ''}}" wx:for="{{books}}" wx:key="id" wx:for-item="b">
-    <view class="check" bindtap="toggleCheck" data-id="{{b.id}}">
-      <view class="check-box {{b.checked ? 'checked' : ''}}">{{b.checked ? '✓' : ''}}</view>
-    </view>
-    <view class="book-main" bindtap="toggleCheck" data-id="{{b.id}}">
-      <view class="book-title-row">
-        <view class="book-title">{{b.title}}</view>
-        <view class="tag {{b.required ? 'tag-required' : 'tag-optional'}}">{{b.required ? '必修' : '选修'}}</view>
+  <block wx:else>
+    <!-- 我的选购状态 -->
+    <view class="order-head card">
+      <view class="h2">本班教材清单</view>
+      <view class="text-sub head-meta">
+        <text>共 {{books.length}} 种可选教材</text>
+        <text class="head-class" wx:if="{{me.className}}">{{me.className}}</text>
       </view>
-      <view class="text-weak book-meta">{{b.edition}} · {{b.author}} · {{b.press}}</view>
-      <view class="text-weak book-meta">课程：{{b.course}} · 选用教师：{{b.teacher}}</view>
+      <view class="tag tag-warning" wx:if="{{submittedAt}}">已提交 · {{submittedAt}}（截止前可修改）</view>
+      <view class="tag tag-blue" wx:else>首次填写</view>
     </view>
-    <view class="book-right">
-      <view class="book-price">¥{{b.price}}</view>
-      <view class="stepper" wx:if="{{b.checked}}">
-        <view class="step-btn" catchtap="stepDown" data-id="{{b.id}}">−</view>
-        <view class="step-num">{{b.qty}}</view>
-        <view class="step-btn" catchtap="stepUp" data-id="{{b.id}}">＋</view>
+
+    <view class="section-title">
+      教材列表
+      <text class="closed-hint" wx:if="{{!canSubmit}}"> · 仅供查看</text>
+    </view>
+
+    <!-- 教材列表 -->
+    <view
+      class="book-item card {{b.checked ? 'picked' : ''}} {{(!canSubmit || b.delisted) ? 'readonly' : ''}}"
+      wx:for="{{books}}"
+      wx:key="textbookId"
+      wx:for-item="b"
+    >
+      <view class="check" bindtap="toggleCheck" data-id="{{b.textbookId}}">
+        <view class="check-box {{b.checked ? 'checked' : ''}} {{b.delisted ? 'disabled' : ''}}">
+          {{b.checked ? '✓' : ''}}
+        </view>
+      </view>
+      <view class="book-main" bindtap="toggleCheck" data-id="{{b.textbookId}}">
+        <view class="book-title-row">
+          <view class="book-title">{{b.title}}</view>
+          <view class="tag {{b.required ? 'tag-required' : 'tag-optional'}}">{{b.required ? '必修' : '选修'}}</view>
+          <view class="tag tag-gray" wx:if="{{b.delisted}}">已下架</view>
+        </view>
+        <view class="text-weak book-meta">{{b.edition}} · {{b.author}} · {{b.press}}</view>
+        <view class="text-weak book-meta">ISBN：{{b.isbn}}</view>
+      </view>
+      <view class="book-right">
+        <view class="book-price">¥{{b.price}}</view>
+        <view class="stepper" wx:if="{{b.checked && !b.delisted}}">
+          <view class="step-btn" catchtap="stepDown" data-id="{{b.textbookId}}">−</view>
+          <view class="step-num">{{b.qty}}</view>
+          <view class="step-btn" catchtap="stepUp" data-id="{{b.textbookId}}">＋</view>
+        </view>
       </view>
     </view>
-  </view>
 
-  <!-- 底部提交栏（截止任务：禁用态） -->
-  <view class="footer">
-    <view class="footer-info">
-      <view class="text-sub">已选 {{totalKinds}} 种 / 共 {{totalQty}} 本</view>
-      <view class="footer-amount">合计 ¥{{totalAmount}}</view>
+    <view class="empty" wx:if="{{books.length === 0}}">
+      <view class="empty-icon">📚</view>
+      <view>本学期暂无与你班级关联的教材</view>
+      <view class="text-weak empty-sub">教材清单由任课老师填报、教材室审核通过后生成</view>
     </view>
-    <button wx:if="{{order.status === 'open'}}" class="btn-primary footer-btn" hover-class="button-hover" bindtap="onSubmit">提交征订</button>
-    <button wx:else class="btn-primary footer-btn footer-btn-disabled" disabled>已截止 · 仅供查看</button>
-  </view>
-  <view class="footer-space"></view>
+
+    <!-- 底部提交栏 -->
+    <view class="footer">
+      <view class="footer-info">
+        <view class="text-sub">已选 {{totalKinds}} 种 / 共 {{totalQty}} 本</view>
+        <view class="footer-amount">合计 ¥{{totalAmount}}</view>
+      </view>
+      <button
+        wx:if="{{canSubmit}}"
+        class="btn-primary footer-btn"
+        hover-class="button-hover"
+        bindtap="onSubmit"
+      >
+        提交征订
+      </button>
+      <button wx:else class="btn-primary footer-btn footer-btn-disabled" disabled>
+        {{windowStatus === 'not_open' ? '征订未开始' : '已截止 · 仅供查看'}}
+      </button>
+    </view>
+    <view class="footer-space"></view>
+  </block>
+
+  <!-- 提交确认弹层：明细 + 合计 + 底部固定小字 -->
+  <confirm-modal
+    show="{{confirmShow}}"
+    title="{{emptyConfirm ? '清空确认' : '提交确认'}}"
+    note="价格和版本以最终出版单位供应为准"
+    confirm-text="{{emptyConfirm ? '确认清空' : '确认提交'}}"
+    loading="{{submitting}}"
+    bind:confirm="onConfirmSubmit"
+    bind:cancel="onConfirmCancel"
+  >
+    <block wx:if="{{emptyConfirm}}">
+      <view class="confirm-empty">
+        当前未勾选任何教材，提交后将<text class="strong">清空全部选择</text>，是否继续？
+      </view>
+    </block>
+    <block wx:else>
+      <view class="confirm-table">
+        <view class="confirm-row head">
+          <view class="col-title">教材</view>
+          <view class="col-qty">数量</view>
+          <view class="col-amount">金额</view>
+        </view>
+        <view class="confirm-row" wx:for="{{confirmItems}}" wx:key="textbookId">
+          <view class="col-title">{{item.title}}</view>
+          <view class="col-qty">{{item.qty}}</view>
+          <view class="col-amount">¥{{item.amount}}</view>
+        </view>
+      </view>
+      <view class="confirm-total">
+        <text>合计 {{totalKinds}} 种 / {{totalQty}} 本</text>
+        <text class="confirm-amount">¥{{totalAmount}}</text>
+      </view>
+      <view class="confirm-warn" wx:if="{{totalKinds > 1}}">原则上每人只征订一本教材，请确认是否提交多种。</view>
+    </block>
+  </confirm-modal>
 </view>

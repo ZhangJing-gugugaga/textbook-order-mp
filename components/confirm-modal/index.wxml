@@ -1,0 +1,19 @@
+<view class="mask" wx:if="{{show}}" catchtap="onCancel">
+  <view class="modal" catchtap="noop">
+    <view class="modal-title">{{title}}</view>
+    <scroll-view class="modal-body" scroll-y>
+      <slot></slot>
+    </scroll-view>
+    <view class="modal-note" wx:if="{{note}}">{{note}}</view>
+    <view class="modal-actions">
+      <view class="modal-btn ghost" hover-class="modal-btn-hover" catchtap="onCancel">{{cancelText}}</view>
+      <view
+        class="modal-btn primary {{confirmDisabled || loading ? 'disabled' : ''}}"
+        hover-class="{{confirmDisabled || loading ? '' : 'modal-btn-hover'}}"
+        catchtap="onConfirm"
+      >
+        {{loading ? '提交中…' : confirmText}}
+      </view>
+    </view>
+  </view>
+</view>

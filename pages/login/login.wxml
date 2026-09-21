@@ -8,40 +8,126 @@
       <text class="logo-icon">📚</text>
     </view>
     <view class="app-name">教材征订系统</view>
-    <view class="app-slogan">统一征订 · 在线勾选 · 数据统计</view>
+    <view class="app-slogan">统一征订 · 在线填报 · 数据统计</view>
   </view>
 
-  <view class="form-card card">
-    <view class="input-row">
-      <view class="input-label">学号/工号</view>
-      <input placeholder="请输入学号或教师工号" placeholder-class="ph" value="{{id}}" bindinput="onIdInput" />
+  <!-- ① 会话恢复中 -->
+  <view class="form-card card" wx:if="{{step === 'checking'}}">
+    <view class="checking">
+      <view class="checking-dot"></view>
+      <view class="checking-text">正在恢复登录状态…</view>
     </view>
-    <view class="input-row">
-      <view class="input-label">姓名</view>
-      <input placeholder="请输入真实姓名" placeholder-class="ph" value="{{name}}" bindinput="onNameInput" />
-    </view>
-    <button class="btn-primary login-btn" hover-class="button-hover" bindtap="onLogin" loading="{{loading}}">登 录</button>
-    <view class="error-tip" wx:if="{{error}}">{{error}}</view>
   </view>
 
-  <view class="demo card">
-    <view class="demo-title">演示账号 · 点击自动填入</view>
-    <view class="demo-row" hover-class="demo-row-hover" bindtap="fillStudent">
-      <view class="icon-badge icon-indigo demo-badge">🎓</view>
-      <view class="demo-info">
-        <view class="demo-role">学生</view>
-        <view class="demo-acc">20240101 · 张敬</view>
+  <!-- ② 登录表单 -->
+  <block wx:elif="{{step === 'form'}}">
+    <view class="form-card card">
+      <view class="input-row">
+        <view class="input-label">学号/工号</view>
+        <input
+          placeholder="请输入学号或教师工号"
+          placeholder-class="ph"
+          value="{{userNo}}"
+          bindinput="onUserNoInput"
+          confirm-type="next"
+        />
       </view>
-      <view class="cell-arrow">›</view>
-    </view>
-    <view class="demo-row" hover-class="demo-row-hover" bindtap="fillAdmin">
-      <view class="icon-badge icon-green demo-badge">🛠️</view>
-      <view class="demo-info">
-        <view class="demo-role">教材管理员</view>
-        <view class="demo-acc">T0001 · 王教材</view>
+      <view class="input-row">
+        <view class="input-label">密码</view>
+        <input
+          password
+          placeholder="请输入密码"
+          placeholder-class="ph"
+          value="{{password}}"
+          bindinput="onPasswordInput"
+          confirm-type="done"
+          bindconfirm="onLogin"
+        />
       </view>
-      <view class="cell-arrow">›</view>
+      <button class="btn-primary login-btn" hover-class="button-hover" bindtap="onLogin" loading="{{loading}}">
+        登 录
+      </button>
+      <view class="error-tip" wx:if="{{error}}">{{error}}</view>
     </view>
-    <view class="demo-tip">学校学号与姓名匹配后方可进入</view>
+
+    <view class="demo card">
+      <view class="demo-title">演示账号 · 点击自动填入</view>
+      <view
+        class="demo-row"
+        wx:for="{{demoAccounts}}"
+        wx:key="key"
+        hover-class="demo-row-hover"
+        data-key="{{item.key}}"
+        bindtap="fillDemo"
+      >
+        <view class="icon-badge {{item.tone}} demo-badge">{{item.icon}}</view>
+        <view class="demo-info">
+          <view class="demo-role">{{item.role}}</view>
+          <view class="demo-acc">{{item.label}}</view>
+        </view>
+        <view class="cell-arrow">›</view>
+      </view>
+      <view class="demo-tip">初始密码账号登录后须先完成首登校验与改密</view>
+    </view>
+  </block>
+
+  <!-- ③ 首登校验 -->
+  <view class="form-card card" wx:elif="{{step === 'verify'}}">
+    <view class="step-head">
+      <view class="step-badge">1/2</view>
+      <view class="step-title">首登校验</view>
+    </view>
+    <view class="step-desc">为确认本人操作，请完成身份校验；校验通过后需设置新密码。</view>
+
+    <view class="wx-verify" wx:if="{{wxTrying}}">
+      <view class="checking-dot"></view>
+      <text class="text-sub">正在通过微信校验…</text>
+    </view>
+
+    <block wx:else>
+      <view class="verify-hint" wx:if="{{verifyHint}}">{{verifyHint}}</view>
+      <view class="input-row">
+        <view class="input-label">手机号后 4 位</view>
+        <input
+          type="number"
+          maxlength="4"
+          placeholder="请输入 4 位数字"
+          placeholder-class="ph"
+          value="{{phoneTail}}"
+          bindinput="onPhoneTailInput"
+        />
+      </view>
+      <button class="btn-primary" hover-class="button-hover" bindtap="onVerifyPhone" loading="{{verifying}}">
+        校 验
+      </button>
+      <view class="error-tip" wx:if="{{verifyError}}">{{verifyError}}</view>
+      <view class="link-row" bindtap="tryWxVerify">重新尝试微信校验</view>
+    </block>
+  </view>
+
+  <!-- ④ 改密 -->
+  <view class="form-card card" wx:elif="{{step === 'password'}}">
+    <view class="step-head">
+      <view class="step-badge">2/2</view>
+      <view class="step-title">设置新密码</view>
+    </view>
+    <view class="step-desc">新密码需 8 位以上且同时包含字母和数字。</view>
+
+    <view class="input-row">
+      <view class="input-label">原密码</view>
+      <input password placeholder="请输入原密码" placeholder-class="ph" value="{{oldPassword}}" bindinput="onOldPwdInput" />
+    </view>
+    <view class="input-row">
+      <view class="input-label">新密码</view>
+      <input password placeholder="8 位以上，含字母和数字" placeholder-class="ph" value="{{newPassword}}" bindinput="onNewPwdInput" />
+    </view>
+    <view class="input-row">
+      <view class="input-label">确认新密码</view>
+      <input password placeholder="请再次输入新密码" placeholder-class="ph" value="{{newPassword2}}" bindinput="onNewPwd2Input" />
+    </view>
+    <button class="btn-primary" hover-class="button-hover" bindtap="onChangePassword" loading="{{pwdSaving}}">
+      提交并进入
+    </button>
+    <view class="error-tip" wx:if="{{pwdError}}">{{pwdError}}</view>
   </view>
 </view>

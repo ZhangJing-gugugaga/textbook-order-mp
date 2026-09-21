@@ -1,3 +1,7 @@
 {
-  "navigationBarTitleText": "教材征订"
+  "navigationBarTitleText": "教材征订",
+  "enablePullDownRefresh": true,
+  "usingComponents": {
+    "window-status": "/components/window-status/index"
+  }
 }

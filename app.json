@@ -3,12 +3,7 @@
     "pages/login/login",
     "pages/home/home",
     "pages/order/order",
-    "pages/messages/messages",
-    "pages/profile/profile",
-    "pages/admin-publish/admin-publish",
-    "pages/admin-books/admin-books",
-    "pages/admin-stats/admin-stats",
-    "pages/admin-students/admin-students"
+    "pages/profile/profile"
   ],
   "window": {
     "backgroundTextStyle": "light",
@@ -26,10 +21,6 @@
       {
         "pagePath": "pages/home/home",
         "text": "首页"
-      },
-      {
-        "pagePath": "pages/messages/messages",
-        "text": "消息"
       },
       {
         "pagePath": "pages/profile/profile",

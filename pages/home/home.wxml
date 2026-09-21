@@ -1,111 +1,110 @@
 <view class="page">
-  <!-- ===== 管理员概览 ===== -->
-  <block wx:if="{{session.role === 'admin'}}">
-    <view class="card-hero overview">
-      <view class="ov-head">
-        <view>
-          <view class="ov-title">教材征订工作台</view>
-          <view class="ov-sub">管理员 · {{session.name}}</view>
-        </view>
-        <view class="ov-badge">ADMIN</view>
-      </view>
-      <view class="ov-grid">
-        <view class="ov-item">
-          <view class="num-hero">{{overview.taskCount}}</view>
-          <view class="ov-label">征订任务</view>
-        </view>
-        <view class="ov-item">
-          <view class="num-hero">{{overview.bookCount}}</view>
-          <view class="ov-label">在库教材</view>
-        </view>
-        <view class="ov-item">
-          <view class="num-hero">{{overview.studentCount}}</view>
-          <view class="ov-label">在册学生</view>
-        </view>
-        <view class="ov-item">
-          <view class="num-hero">{{overview.submittedCount}}</view>
-          <view class="ov-label">已提交</view>
-        </view>
-      </view>
+  <!-- ===== 窗口状态卡（三态 + 倒计时，60s 轮询） ===== -->
+  <window-status wx:if="{{mode !== 'web'}}" bind:change="onWindowChange" />
+
+  <!-- ===== 教师首页 ===== -->
+  <block wx:if="{{mode === 'teacher'}}">
+    <view class="card-hero greeting">
+      <view class="greet-title">{{me.name}}，你好</view>
+      <view class="greet-sub">{{roleText}} · {{me.collegeName || '未分配学院'}}</view>
     </view>
 
-    <view class="section-title">快捷入口</view>
-    <view class="quick card">
-      <view class="quick-item" hover-class="quick-hover" bindtap="goPublish">
-        <view class="icon-badge icon-indigo">📢</view>
-        <view class="quick-label">发布征订</view>
+    <view class="section-title">我的课程</view>
+    <view class="card entry-card" hover-class="card-hover" bindtap="goTeacherCourses">
+      <view class="entry-main">
+        <view class="entry-title">任课关系</view>
+        <view class="entry-sub">{{courseSummary}}</view>
       </view>
-      <view class="quick-item" hover-class="quick-hover" bindtap="goBooks">
-        <view class="icon-badge icon-green">📖</view>
-        <view class="quick-label">教材管理</view>
+      <view class="cell-arrow">›</view>
+    </view>
+
+    <view class="section-title">本学期填报</view>
+    <view class="card form-card" wx:if="{{formStatus}}">
+      <view class="form-head">
+        <view class="form-label">填报状态</view>
+        <view class="tag {{formStatus.tone}}">{{formStatus.label}}</view>
       </view>
-      <view class="quick-item" hover-class="quick-hover" bindtap="goStudents">
-        <view class="icon-badge icon-blue">🎓</view>
-        <view class="quick-label">学生管理</view>
+      <view class="form-hint">{{formStatus.hint}}</view>
+      <view class="form-time" wx:if="{{formStatus.timeText}}">{{formStatus.timeText}}</view>
+      <view class="form-deadline" wx:if="{{correctDeadlineText}}">{{correctDeadlineText}}</view>
+      <button class="btn-primary form-btn" hover-class="button-hover" bindtap="goTeacherForm">
+        {{needCorrection ? '去补正重提' : (formStatus.label === '未提交' ? '去填报' : '查看/修改填报')}}
+      </button>
+    </view>
+
+    <view class="card entry-card" hover-class="card-hover" bindtap="goTeacherRecords">
+      <view class="entry-main">
+        <view class="entry-title">我的提交记录</view>
+        <view class="entry-sub">历史学期填报与审查状态</view>
       </view>
-      <view class="quick-item" hover-class="quick-hover" bindtap="goStats">
-        <view class="icon-badge icon-orange">📊</view>
-        <view class="quick-label">统计导出</view>
-      </view>
-      <view class="quick-item" hover-class="quick-hover" bindtap="goMessages">
-        <view class="icon-badge icon-pink">🔔</view>
-        <view class="quick-label">消息通知</view>
-      </view>
+      <view class="cell-arrow">›</view>
     </view>
   </block>
 
-  <!-- 学生问候 -->
-  <block wx:if="{{session.role !== 'admin'}}">
-    <view class="card-hero student-hero">
-      <view class="ov-title student-title">Hi，{{session.name}}</view>
-      <view class="ov-sub">{{roleText}}</view>
-      <view class="student-hint">在下方选择征订任务，勾选本学期教材</view>
+  <!-- ===== 学生首页 ===== -->
+  <block wx:elif="{{mode === 'student'}}">
+    <view class="card-hero greeting">
+      <view class="greet-title">{{me.name}}，你好</view>
+      <view class="greet-sub">
+        {{roleText}} · {{me.className || '未分配班级'}}
+      </view>
     </view>
-  </block>
 
-  <!-- ===== 征订任务列表 ===== -->
-  <view class="section-title">征订任务</view>
-  <view wx:if="{{orders.length === 0}}" class="empty card">
-    <view class="empty-icon">📭</view>
-    <view>暂无征订任务</view>
-  </view>
-
-  <view class="order-card card" wx:for="{{orders}}" wx:key="id" wx:for-item="o">
-    <view class="order-accent {{o.status === 'open' ? 'open' : 'closed'}}"></view>
-    <view class="order-body">
-      <view class="order-head">
-        <view class="h2 order-title">{{o.title}}</view>
-        <view class="tag {{o.status === 'open' ? 'tag-success' : 'tag-warning'}}">{{o.status === 'open' ? '进行中' : '已截止'}}</view>
-      </view>
-      <view class="text-sub order-meta">
-        <text class="meta-item">⏱ 截止 {{o.deadline}}</text>
+    <view class="section-title">教材征订</view>
+    <view class="card form-card">
+      <view class="form-head">
+        <view class="form-label">我的选购单</view>
+        <view class="tag {{hasOrder ? 'tag-success' : 'tag-optional'}}">{{orderStatusText}}</view>
       </view>
 
-      <block wx:if="{{session.role !== 'admin'}}">
-        <view class="order-status-row">
-          <text class="text-sub">我的提交</text>
-          <view class="tag {{o.submitted ? 'tag-success' : 'tag-warning'}}">{{o.submitted ? '已提交 ' + o.itemCount + ' 项' : '未提交'}}</view>
-        </view>
-        <button class="btn-primary order-btn" hover-class="button-hover" bindtap="goOrder" data-id="{{o.id}}" wx:if="{{o.status === 'open'}}">
-          {{o.submitted ? '修改我的勾选' : '去勾选教材'}}
-        </button>
-        <button class="btn-ghost order-btn" hover-class="button-hover" bindtap="goOrder" data-id="{{o.id}}" wx:else>查看详情</button>
-      </block>
-
-      <block wx:else>
-        <view class="progress-wrap" wx:if="{{o.total > 0}}">
-          <view class="progress-track">
-            <view class="progress-fill" style="width: {{o.rate}}%"></view>
+      <block wx:if="{{hasOrder}}">
+        <view class="stat-row">
+          <view class="stat-item">
+            <view class="stat-num">{{orderItemCount}}</view>
+            <view class="stat-label">教材品种</view>
           </view>
-          <view class="text-weak progress-text">{{o.submittedCount}}/{{o.total}} 人已提交 · {{o.rate}}%</view>
+          <view class="stat-item">
+            <view class="stat-num">{{orderTotalQuantity}}</view>
+            <view class="stat-label">总数量</view>
+          </view>
+          <view class="stat-item">
+            <view class="stat-num">{{orderTotalPrice}}</view>
+            <view class="stat-label">金额合计（元）</view>
+          </view>
         </view>
-        <view class="order-btn-row">
-          <button class="btn-ghost order-btn half" hover-class="button-hover" bindtap="goStatsOne" data-id="{{o.id}}">查看统计</button>
-          <button class="btn-ghost order-btn half" hover-class="button-hover" bindtap="toggleStatus" data-id="{{o.id}}" data-status="{{o.status}}">
-            {{o.status === 'open' ? '设为截止' : '重新开放'}}
-          </button>
-        </view>
+        <view class="form-time" wx:if="{{orderSubmittedAt}}">提交于 {{orderSubmittedAt}}</view>
       </block>
+      <view class="form-hint" wx:else>尚未提交选购单，请在征订窗口内完成勾选。</view>
+
+      <button class="btn-primary form-btn" hover-class="button-hover" bindtap="goOrder">
+        {{hasOrder ? '修改我的选购' : '去勾选教材'}}
+      </button>
+      <view class="form-tip" wx:if="{{!windowCanSubmit && windowStatus === 'closed'}}">
+        本期征订已截止，选购页仅供查看历史记录
+      </view>
     </view>
-  </view>
+
+    <view class="card entry-card" hover-class="card-hover" bindtap="goProfile">
+      <view class="entry-main">
+        <view class="entry-title">我的征订记录</view>
+        <view class="entry-sub">历史学期选购明细与金额合计</view>
+      </view>
+      <view class="cell-arrow">›</view>
+    </view>
+  </block>
+
+  <!-- ===== 非师生身份：引导至 Web 端 ===== -->
+  <block wx:elif="{{mode === 'web'}}">
+    <view class="card web-card">
+      <view class="icon-badge icon-orange web-badge">🖥️</view>
+      <view class="web-title">该身份请使用 Web 端</view>
+      <view class="web-desc">
+        小程序端仅面向<text class="strong">任课老师</text>与<text class="strong">学生</text>。
+        当前身份「{{roleText}}」的功能（教材库、账号、统计、审核、导出等）请在电脑端 Web 系统操作。
+      </view>
+      <view class="web-account" wx:if="{{me}}">{{me.name}} · {{me.userNo}}</view>
+      <button class="btn-ghost web-btn" hover-class="button-hover" bindtap="goProfile">前往「我的」切换身份</button>
+      <button class="btn-primary web-btn" hover-class="button-hover" bindtap="onLogout">退出登录</button>
+    </view>
+  </block>
 </view>

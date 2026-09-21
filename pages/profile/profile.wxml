@@ -1,66 +1,101 @@
 <view class="page">
-  <!-- 用户卡 -->
+  <!-- ===== 身份卡 ===== -->
   <view class="user-card">
-    <view class="avatar">{{session.name[0] || '?'}}</view>
+    <view class="avatar">{{me.name ? me.name[0] : '·'}}</view>
     <view class="user-info">
-      <view class="user-name">{{session.name}}</view>
-      <view class="user-sub">{{session.id}} · {{roleText}}</view>
+      <view class="user-name">{{me.name || '未登录'}}</view>
+      <view class="user-sub">{{me.userNo || '—'}}</view>
+      <view class="user-sub">{{collegeText}}</view>
     </view>
-    <view class="tag tag-blue">{{session.role === 'admin' ? '教材管理员' : '学生'}}</view>
+    <view class="tag">{{roleText}}</view>
   </view>
 
-  <!-- 学生：我的征订 -->
-  <block wx:if="{{session.role !== 'admin'}}">
-    <view class="section-title">我的征订记录</view>
-    <view class="card" wx:if="{{mySubs.length === 0}}">
-      <view class="empty"><view class="empty-icon">🗒️</view><view>还没有征订记录</view></view>
-    </view>
-    <view class="card sub-card" wx:for="{{mySubs}}" wx:key="orderId" wx:for-item="s">
-      <view class="sub-head">
-        <view class="h2">{{s.orderTitle}}</view>
-        <view class="tag {{s.status === 'open' ? 'tag-success' : 'tag-warning'}}">{{s.status === 'open' ? '进行中' : '已截止'}}</view>
+  <!-- ===== 微信绑定与订阅授权 ===== -->
+  <view class="section-title">微信通知</view>
+  <view class="card bind-card">
+    <view class="bind-row">
+      <view class="bind-icon {{openidBound ? 'on' : 'off'}}">{{openidBound ? '✅' : '⚠️'}}</view>
+      <view class="bind-main">
+        <view class="bind-title">{{openidBound ? '已绑定微信' : '未绑定微信'}}</view>
+        <view class="bind-sub">{{subscribeText}}</view>
       </view>
-      <view class="text-weak">提交时间：{{s.submittedAt}}</view>
-      <view class="sub-books">
-        <view class="sub-book" wx:for="{{s.items}}" wx:key="bookId" wx:for-item="it">
-          <text class="sub-book-title">{{it.title}}</text>
-          <text class="sub-book-qty">×{{it.qty}}</text>
+      <button
+        wx:if="{{!openidBound}}"
+        class="btn-ghost bind-btn"
+        hover-class="button-hover"
+        bindtap="onBindWx"
+        loading="{{binding}}"
+      >
+        绑定微信
+      </button>
+    </view>
+    <view class="bind-note">订阅消息仅对已绑定微信的学生发送；未绑定时以应用内弹窗提醒为准。</view>
+  </view>
+
+  <!-- ===== 多角色：切换身份 ===== -->
+  <block wx:if="{{canSwitch}}">
+    <view class="section-title">切换身份</view>
+    <view class="card role-card">
+      <view
+        class="role-item {{item.current ? 'current' : ''}}"
+        wx:for="{{roles}}"
+        wx:key="code"
+        data-code="{{item.code}}"
+        bindtap="onSwitchRole"
+        hover-class="role-hover"
+      >
+        <view class="role-label">{{item.label}}</view>
+        <view class="role-state">{{item.current ? '当前身份' : '点击切换'}}</view>
+      </view>
+      <view class="role-note">切换身份仅改变可用的功能范围，数据范围不变。</view>
+    </view>
+  </block>
+
+  <!-- ===== 设置 ===== -->
+  <view class="section-title">账号设置</view>
+  <view class="card menu-card">
+    <view class="cell" bindtap="openPwd" hover-class="cell-hover">
+      <text class="menu-icon">🔒</text>
+      <text>修改密码</text>
+      <text class="cell-arrow">›</text>
+    </view>
+    <view class="cell" bindtap="onAbout" hover-class="cell-hover">
+      <text class="menu-icon">ℹ️</text>
+      <text>关于</text>
+      <text class="cell-arrow">›</text>
+    </view>
+  </view>
+
+  <view class="card logout-card" bindtap="onLogout" hover-class="logout-hover">
+    <text class="logout">退出登录</text>
+  </view>
+
+  <view class="version">教材征订小程序 v{{version}}</view>
+  <view class="version env">{{envText}}</view>
+
+  <!-- ===== 改密弹层 ===== -->
+  <view class="mask" wx:if="{{pwdShow}}" catchtap="closePwd">
+    <view class="modal" catchtap="noop">
+      <view class="modal-title">修改密码</view>
+      <view class="input-row">
+        <view class="input-label">原密码</view>
+        <input password placeholder="请输入原密码" placeholder-class="ph" value="{{oldPassword}}" bindinput="onOldPwdInput" />
+      </view>
+      <view class="input-row">
+        <view class="input-label">新密码</view>
+        <input password placeholder="8 位以上，含字母和数字" placeholder-class="ph" value="{{newPassword}}" bindinput="onNewPwdInput" />
+      </view>
+      <view class="input-row">
+        <view class="input-label">确认新密码</view>
+        <input password placeholder="请再次输入新密码" placeholder-class="ph" value="{{newPassword2}}" bindinput="onNewPwd2Input" />
+      </view>
+      <view class="error-tip" wx:if="{{pwdError}}">{{pwdError}}</view>
+      <view class="modal-actions">
+        <view class="modal-btn ghost" hover-class="modal-btn-hover" catchtap="closePwd">取消</view>
+        <view class="modal-btn primary" hover-class="modal-btn-hover" catchtap="onSubmitPwd">
+          {{pwdSaving ? '提交中…' : '确认修改'}}
         </view>
       </view>
-      <view class="text-sub sub-amount">合计金额：¥{{s.amount}}</view>
-    </view>
-  </block>
-
-  <!-- 管理员：功能入口 -->
-  <block wx:else>
-    <view class="section-title">管理功能</view>
-    <view class="card menu-card">
-      <view class="cell" bindtap="goPublish">
-        <text>📢 发布征订任务</text><view class="cell-arrow">›</view>
-      </view>
-      <view class="cell" bindtap="goBooks">
-        <text>📖 教材信息管理（Excel导入）</text><view class="cell-arrow">›</view>
-      </view>
-      <view class="cell" bindtap="goStudents">
-        <text>🎓 学生信息管理（批量导入）</text><view class="cell-arrow">›</view>
-      </view>
-      <view class="cell" bindtap="goStats">
-        <text>📊 征订统计与数据导出</text><view class="cell-arrow">›</view>
-      </view>
-    </view>
-  </block>
-
-  <!-- 其他 -->
-  <view class="section-title">其他</view>
-  <view class="card menu-card">
-    <view class="cell" bindtap="goMessages">
-      <text>🔔 消息通知</text><view class="cell-arrow">›</view>
-    </view>
-    <view class="cell" bindtap="onAbout">
-      <text>ℹ️ 关于（MVP 演示版）</text><view class="cell-arrow">›</view>
-    </view>
-    <view class="cell" bindtap="onLogout">
-      <text class="logout">退出登录</text><view class="cell-arrow">›</view>
     </view>
   </view>
 </view>

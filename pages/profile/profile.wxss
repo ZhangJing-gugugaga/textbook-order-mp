@@ -36,6 +36,7 @@
   margin-right: 26rpx;
   position: relative;
   z-index: 1;
+  flex-shrink: 0;
 }
 .user-info { position: relative; z-index: 1; flex: 1; min-width: 0; }
 .user-name { font-size: 38rpx; font-weight: 700; letter-spacing: 1rpx; }
@@ -54,38 +55,145 @@
   z-index: 1;
 }
 
-/* ===== 提交记录 ===== */
-.sub-card { margin-top: 16rpx; }
-.sub-head { display: flex; align-items: center; margin-bottom: 8rpx; }
-.sub-head .h2 { flex: 1; min-width: 0; margin-right: 12rpx; font-size: 30rpx; word-break: break-all; }
-.sub-head .tag { flex-shrink: 0; }
-.sub-books { margin: 16rpx 0; }
-.sub-book {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12rpx 0;
-  border-bottom: 1rpx dashed #E0E7FF;
+/* ===== 微信绑定 ===== */
+.bind-card { padding: 28rpx 32rpx; }
+.bind-row { display: flex; align-items: center; }
+.bind-icon {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: 20rpx;
+  text-align: center;
+  line-height: 72rpx;
+  font-size: 34rpx;
+  margin-right: 22rpx;
+  flex-shrink: 0;
+}
+.bind-icon.on { background: linear-gradient(135deg, #ECFDF5, #D1FAE5); }
+.bind-icon.off { background: linear-gradient(135deg, #FFF7ED, #FFEDD5); }
+.bind-main { flex: 1; min-width: 0; }
+.bind-title { font-size: 29rpx; font-weight: 600; color: #1E1B4B; }
+.bind-sub { font-size: 23rpx; color: #475569; margin-top: 6rpx; }
+.bind-btn {
+  width: 190rpx;
+  flex-shrink: 0;
+  margin: 0 0 0 18rpx;
+  padding: 16rpx 0;
   font-size: 26rpx;
 }
-.sub-book:last-child { border-bottom: none; }
-.sub-book-title { color: #1E1B4B; flex: 1; margin-right: 20rpx; }
-.sub-book-qty {
-  color: #4F46E5;
-  font-weight: 600;
-  background: #EEF2FF;
-  padding: 2rpx 16rpx;
-  border-radius: 999rpx;
+.bind-note {
+  margin-top: 20rpx;
   font-size: 22rpx;
+  color: #94A3B8;
+  line-height: 1.6;
 }
-.sub-amount { color: #EA580C; font-weight: 700; }
+
+/* ===== 切换身份 ===== */
+.role-card { padding: 8rpx 32rpx 24rpx; }
+.role-item {
+  display: flex;
+  align-items: center;
+  padding: 26rpx 0;
+  border-bottom: 1rpx solid #F1F5F9;
+}
+.role-item:last-of-type { border-bottom: none; }
+.role-hover { opacity: 0.7; }
+.role-label { flex: 1; font-size: 29rpx; color: #1E1B4B; font-weight: 500; }
+.role-state { font-size: 24rpx; color: #94A3B8; }
+.role-item.current .role-label { color: #4F46E5; font-weight: 700; }
+.role-item.current .role-state { color: #16A34A; font-weight: 600; }
+.role-note {
+  margin-top: 16rpx;
+  font-size: 22rpx;
+  color: #94A3B8;
+  line-height: 1.6;
+}
 
 /* ===== 菜单 ===== */
 .menu-card { padding: 0 32rpx; overflow: hidden; }
-.logout { color: #DC2626; }
+.cell-hover { background: #F8FAFF; }
 .menu-icon {
   display: inline-flex;
   width: 48rpx;
   margin-right: 20rpx;
   justify-content: center;
 }
+
+/* ===== 退出登录 ===== */
+.logout-card {
+  text-align: center;
+  margin-top: 24rpx;
+  padding: 30rpx 0;
+}
+.logout-hover { background: #FEF2F2; }
+.logout { color: #DC2626; font-size: 30rpx; font-weight: 600; }
+
+/* ===== 版本 ===== */
+.version {
+  text-align: center;
+  font-size: 22rpx;
+  color: #94A3B8;
+  margin-top: 32rpx;
+}
+.version.env {
+  margin-top: 8rpx;
+  color: #CBD5E1;
+  font-size: 20rpx;
+}
+
+/* ===== 改密弹层 ===== */
+.mask {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: rgba(30, 27, 75, 0.45);
+  z-index: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 56rpx;
+}
+.modal {
+  width: 100%;
+  background: #FFFFFF;
+  border-radius: 32rpx;
+  padding: 40rpx 36rpx 32rpx;
+  box-shadow: 0 24rpx 64rpx rgba(30, 27, 75, 0.28);
+}
+.modal-title {
+  font-size: 34rpx;
+  font-weight: 700;
+  color: #1E1B4B;
+  text-align: center;
+  margin-bottom: 28rpx;
+}
+.ph { color: #94A3B8; }
+.error-tip {
+  color: #DC2626;
+  font-size: 24rpx;
+  text-align: center;
+  margin-top: 8rpx;
+}
+.modal-actions { display: flex; margin-top: 28rpx; }
+.modal-btn {
+  flex: 1;
+  text-align: center;
+  font-size: 30rpx;
+  font-weight: 600;
+  padding: 24rpx 0;
+  border-radius: 48rpx;
+  transition: opacity 150ms ease;
+}
+.modal-btn.ghost {
+  background: #FFFFFF;
+  color: #475569;
+  border: 2rpx solid #E0E7FF;
+  margin-right: 20rpx;
+}
+.modal-btn.primary {
+  background: linear-gradient(135deg, #4F46E5, #6366F1);
+  color: #FFFFFF;
+  box-shadow: 0 8rpx 20rpx rgba(79, 70, 229, 0.3);
+}
+.modal-btn-hover { opacity: 0.82; }

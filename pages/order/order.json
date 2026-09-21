@@ -1,3 +1,8 @@
 {
-  "navigationBarTitleText": "勾选教材"
+  "navigationBarTitleText": "教材选购",
+  "enablePullDownRefresh": true,
+  "usingComponents": {
+    "window-status": "/components/window-status/index",
+    "confirm-modal": "/components/confirm-modal/index"
+  }
 }
