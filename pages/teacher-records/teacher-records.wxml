@@ -38,7 +38,7 @@
         <view class="meta-item" wx:if="{{r.submittedAtText}}">{{r.submittedAtText}}</view>
       </view>
 
-      <view class="rec-note" wx:if="{{r.reviewNote}}">驳回理由：{{r.reviewNote}}</view>
+      <view class="rec-note" wx:if="{{r.reviewNoteText}}">驳回理由：{{r.reviewNoteText}}</view>
 
       <!-- 状态轨迹 -->
       <view class="track">

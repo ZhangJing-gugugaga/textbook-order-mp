@@ -77,11 +77,15 @@ Page({
 
   decorate(r) {
     const meta = STATUS_META[r.status] || { label: r.status || '未知', tone: 'tag-blue' };
+    // reviewNote 在 pass 时承载「审核备注」（后端对 action=pass 也会写入 reason），
+    // 只有驳回态才是「驳回理由」——已通过表单不得按驳回文案展示
+    const rejected = r.status === 'rejected' || r.status === 'rejected_auto';
     return Object.assign({}, r, {
       statusLabel: meta.label,
       statusTone: meta.tone,
       submittedAtText: r.submittedAt ? format.formatDateTime(r.submittedAt) : '',
       reviewAtText: r.reviewAt ? format.formatDateTime(r.reviewAt) : '',
+      reviewNoteText: rejected && r.reviewNote ? r.reviewNote : '',
       track: this.buildTrack(r),
     });
   },

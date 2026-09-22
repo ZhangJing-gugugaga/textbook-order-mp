@@ -321,7 +321,12 @@ Page({
     let readonly = true;
     let lockHint = '';
 
-    if (needCorrection) {
+    if (this.data.status === 'reviewed') {
+      // reviewed 是终态（交接 A4）：服务端拒绝再次提交（409 STATE_CONFLICT），
+      // 前端同步锁定编辑与提交，避免用户改了行却被服务端打回、改动白丢
+      readonly = true;
+      lockHint = '已通过审核，如需修改请联系教材室驳回后补正';
+    } else if (needCorrection) {
       // 被驳回表单：correctDeadline 前仍可提交（服务端 @WithinWindow(Exemption.CORRECTION) 放行）
       if (correctionExpired) {
         readonly = true;

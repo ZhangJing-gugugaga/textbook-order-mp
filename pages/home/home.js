@@ -132,7 +132,7 @@ Page({
   applyForm(form) {
     if (!form) {
       this.setData({
-        formStatus: { label: '未提交', tone: 'tag-optional', hint: '本学期尚未填报，请进入填报页新增明细' },
+        formStatus: { label: '未提交', tone: 'tag-optional', hint: '本学期尚未填报，请进入填报页新增明细', actionText: '去填报' },
         correctDeadlineText: '',
         needCorrection: false,
       });
@@ -150,12 +150,20 @@ Page({
       correctDeadlineText = `补正截止 ${format.formatDateTime(form.correctDeadline)}`;
     }
 
+    // reviewed 为终态（交接 A4）：填报页已锁定，入口文案不得再承诺「修改」
+    const actionText = needCorrection
+      ? '去补正重提'
+      : form.status === 'reviewed'
+        ? '查看填报'
+        : '查看/修改填报';
+
     this.setData({
       formStatus: {
         label: meta.label,
         tone: meta.tone,
         hint: form.reviewNote && needCorrection ? `驳回理由：${form.reviewNote}` : meta.hint,
         timeText: timeText,
+        actionText: actionText,
       },
       correctDeadlineText: correctDeadlineText,
       needCorrection: needCorrection,

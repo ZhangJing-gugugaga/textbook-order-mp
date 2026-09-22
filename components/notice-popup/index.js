@@ -23,9 +23,28 @@ const format = require('../../utils/format');
  *   - 首登顺序：未完成首登校验/改密不拉通知（由调用方 ensureSession 门禁保证）
  */
 
-// 模块级状态：同一小程序会话内，队列确认完就不再重复拉取（跨页面实例共享）
-let sessionCleared = false;
+// 模块级状态：同一账号、同一次前台停留内，队列确认完就不再重复拉取（跨页面实例共享）。
+// 该标记必须能失效，否则一旦被置位就再不复位：
+//   ① 退出登录换账号 → 新账号的阻塞通知永远不弹；
+//   ② app 常驻期间后端新发通知 → 回到小程序也不弹（违反「弹窗为主触达」）。
+// 键 = 用户 id + 前台纪元（app.onShow 推进）：换账号或重新回到前台即自动失效。
+let clearedKey = '';
 let inflight = null;
+
+/** 当前「账号 + 前台纪元」标识 */
+function sessionKey() {
+  const me = auth.getCachedMe();
+  if (!me) return '';
+  let epoch = 0;
+  try {
+    const app = getApp();
+    if (app && app.globalData && app.globalData.noticeEpoch) epoch = app.globalData.noticeEpoch;
+  } catch (e) {
+    /* getApp 在极早期不可用，按 0 处理 */
+  }
+  const id = me.userId != null ? me.userId : me.userNo;
+  return `${id}#${epoch}`;
+}
 
 Component({
   options: { multipleSlots: false },
@@ -58,12 +77,15 @@ Component({
   methods: {
     /** 供页面显式触发（如登录成功后） */
     ensureFetch(force) {
-      if (sessionCleared && !force) return Promise.resolve(null);
       if (inflight) return inflight;
 
       // 未登录 / 未完成首登 → 不拉通知
       const me = auth.getCachedMe();
       if (!me || me.mustChangePassword) return Promise.resolve(null);
+
+      // 本账号在本次前台停留内已确认清空 → 不再重复拉取（第 6 条起不阻塞，T4.1）
+      const key = sessionKey();
+      if (clearedKey && clearedKey === key && !force) return Promise.resolve(null);
 
       inflight = api.notice
         .unconfirmed()
@@ -71,10 +93,8 @@ Component({
           (list) => {
             inflight = null;
             const all = Array.isArray(list) ? list : [];
-            if (!all.length) {
-              sessionCleared = true;
-              return null;
-            }
+            // 空队列不置 clearedKey：空 ≠ 用户已确认，后端新发通知后进入页面仍要弹
+            if (!all.length) return null;
             // createdAt DESC 取最新 POPUP_QUEUE_MAX 条（其余在「我的」页可查，不阻塞）
             const queue = all
               .slice()
@@ -199,8 +219,8 @@ Component({
       const queue = this.data.queue.slice(1);
       const done = this.data.done + 1;
       if (!queue.length) {
-        // 展示的 5 条全部确认完 → 放行
-        sessionCleared = true;
+        // 展示的 5 条全部确认完 → 放行（记下「本账号本次前台」已清空）
+        clearedKey = sessionKey();
         this.setData({ show: false, queue: [], current: null, confirming: false, error: '' });
         this.triggerEvent('cleared', { confirmed: done });
         return;
@@ -223,7 +243,7 @@ Component({
 
     /** 供页面在「我的」页确认后同步队列 */
     refresh() {
-      sessionCleared = false;
+      clearedKey = '';
       return this.ensureFetch(true);
     },
   },

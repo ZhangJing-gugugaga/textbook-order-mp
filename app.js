@@ -9,6 +9,12 @@ App({
     this.globalData.sessionPromise = this.initSession();
   },
 
+  onShow() {
+    // 回到前台推进「通知纪元」：阻塞弹窗据此重新拉取未确认队列。
+    // 弹窗为主触达通道，app 常驻期间后端新发的通知必须仍能弹出（见 notice-popup/index.js）。
+    this.globalData.noticeEpoch = (this.globalData.noticeEpoch || 0) + 1;
+  },
+
   initSession() {
     const app = this;
     return auth.bootstrap().then(
@@ -80,5 +86,7 @@ App({
     config: config,
     // 窗口状态缓存：由首页拉取，其他页进入时可直接用（仍会各自重取）
     windowStatus: null,
+    // 前台纪元：每次 onShow 递增，供阻塞弹窗判定「已清空」标记是否失效
+    noticeEpoch: 0,
   },
 });

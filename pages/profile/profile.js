@@ -44,6 +44,12 @@ Page({
     historyDegraded: false,
     historyError: '',
     noticeTab: 'unconfirmed',
+
+    // 选购记录（学生身份，§5.3 / docs/08 §3.1：GET /api/student/orders）
+    showStudentOrders: false,
+    studentOrdersLoaded: false,
+    studentOrders: [],
+    studentOrdersError: '',
   },
 
   onLoad() {
@@ -53,8 +59,9 @@ Page({
         return;
       }
       this.applyMe(result.me);
-      // 首次进入：onShow 早于会话就绪会直接返回，这里补一次通知加载
+      // 首次进入：onShow 早于会话就绪会直接返回，这里补一次通知/记录加载
       this.loadNotices();
+      this.loadStudentOrders();
     });
     // N5：静默 refresh 可能重置 currentRole，此处跟随服务端结果刷新
     auth.onRoleChanged(() => {
@@ -71,6 +78,41 @@ Page({
       () => {},
     );
     this.loadNotices();
+    this.loadStudentOrders();
+  },
+
+  /* ---------------- 选购记录（学生身份） ---------------- */
+  /**
+   * 历史学期选购记录：GET /api/student/orders（跨学期摘要）
+   * 后端无「历史学期明细」端点（API.md §3.7 已知缺口），故历史仅展示汇总；
+   * 本学期明细与金额在选购页查看。
+   */
+  loadStudentOrders() {
+    const me = this.data.me || auth.getCachedMe();
+    if (!me || auth.homeMode(me) !== 'student') return Promise.resolve(null);
+
+    return api.student.orders().then(
+      (list) => {
+        const rows = (Array.isArray(list) ? list : []).map((o) => ({
+          id: o.id,
+          semesterName: o.semesterName || `学期 ${o.semesterId}`,
+          statusText: o.status === 'submitted' ? '已提交' : '草稿',
+          statusTone: o.status === 'submitted' ? 'tag-blue' : 'tag-optional',
+          itemCount: o.itemCount || 0,
+          totalQuantity: o.totalQuantity || 0,
+          submittedAtText: o.submittedAt ? format.formatDateTime(o.submittedAt) : '',
+          affiliationText: [o.collegeName, o.className].filter(Boolean).join(' · '),
+        }));
+        this.setData({ studentOrdersLoaded: true, studentOrders: rows, studentOrdersError: '' });
+      },
+      (err) => {
+        this.setData({
+          studentOrdersLoaded: true,
+          studentOrders: [],
+          studentOrdersError: err.message || '选购记录暂不可用',
+        });
+      },
+    );
   },
 
   /* ---------------- 通知区（§5.5） ---------------- */
@@ -161,6 +203,7 @@ Page({
       openidBound: !!normalized.openidBound,
       roles: roles.map((r) => ({ code: r, label: ROLE_SHORT[r] || r, current: r === normalized.currentRole })),
       canSwitch: roles.length > 1 && isTeacherOrStudent,
+      showStudentOrders: auth.homeMode(normalized) === 'student',
       subscribeText: normalized.openidBound
         ? subscribe && subscribe.result === 'rejected'
           ? '已绑定微信 · 最近一次订阅授权被拒绝，仅弹窗提醒'

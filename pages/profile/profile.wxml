@@ -97,6 +97,40 @@
     </block>
   </view>
 
+  <!-- ===== 选购记录（学生身份；GET /api/student/orders，历史仅摘要） ===== -->
+  <block wx:if="{{showStudentOrders}}">
+    <view class="section-title">选购记录</view>
+    <view class="card rec-card">
+      <block wx:if="{{studentOrders.length}}">
+        <view class="rec-row" wx:for="{{studentOrders}}" wx:key="id" wx:for-item="o">
+          <view class="rec-head">
+            <view class="rec-title">{{o.semesterName}}</view>
+            <view class="tag {{o.statusTone}}">{{o.statusText}}</view>
+          </view>
+          <view class="rec-meta">
+            <text class="rec-meta-item">明细 {{o.itemCount}} 行</text>
+            <text class="rec-meta-item">共 {{o.totalQuantity}} 册</text>
+          </view>
+          <view class="rec-sub" wx:if="{{o.affiliationText}}">{{o.affiliationText}}</view>
+          <view class="rec-sub" wx:if="{{o.submittedAtText}}">提交于 {{o.submittedAtText}}</view>
+        </view>
+      </block>
+      <view class="empty" wx:elif="{{studentOrdersLoaded && studentOrdersError}}">
+        <view class="empty-icon">📡</view>
+        <view>{{studentOrdersError}}</view>
+      </view>
+      <view class="empty" wx:elif="{{studentOrdersLoaded}}">
+        <view class="empty-icon">📭</view>
+        <view>暂无选购记录</view>
+      </view>
+      <view class="empty" wx:else>
+        <view class="empty-icon">⏳</view>
+        <view>正在加载选购记录…</view>
+      </view>
+      <view class="rec-note">历史学期仅提供汇总（后端无历史明细端点）；本学期明细与金额请见选购页。</view>
+    </view>
+  </block>
+
   <!-- ===== 多角色：切换身份 ===== -->
   <block wx:if="{{canSwitch}}">
     <view class="section-title">切换身份</view>

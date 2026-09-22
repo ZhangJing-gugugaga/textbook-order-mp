@@ -28,7 +28,7 @@
       <view class="form-time" wx:if="{{formStatus.timeText}}">{{formStatus.timeText}}</view>
       <view class="form-deadline" wx:if="{{correctDeadlineText}}">{{correctDeadlineText}}</view>
       <button class="btn-primary form-btn" hover-class="button-hover" bindtap="goTeacherForm">
-        {{needCorrection ? '去补正重提' : (formStatus.label === '未提交' ? '去填报' : '查看/修改填报')}}
+        {{formStatus.actionText}}
       </button>
     </view>
 
